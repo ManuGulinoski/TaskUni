@@ -1,4 +1,29 @@
 {
-  "disciplinas": [],
+  "disciplinas": [
+    {
+      "id": "a9ec4fde-d92e-4193-932e-f2e1b8945de7",
+      "nome": "teste"
+    },
+    {
+      "id": "0a38637a-16a2-401c-a595-cdf883ffe3aa",
+      "nome": "matematica"
+    },
+    {
+      "id": "110a66ba-d753-4552-b5ed-d164d6b467ae",
+      "nome": "portugês"
+    },
+    {
+      "id": "e45d209a-4c54-4ab5-9dcf-037cc2856397",
+      "nome": "teste toast"
+    },
+    {
+      "id": "50de3aa8-afdb-4029-9bda-41457084153b",
+      "nome": "português"
+    },
+    {
+      "id": "ae06f9a9-5490-47a1-a199-1683c61ef677",
+      "nome": "nova"
+    }
+  ],
   "tarefas": []
 }

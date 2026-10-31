@@ -1,18 +1,3 @@
-"""
-Leitura e gravação do arquivo JSON.
-
-Responsável: Pessoa 2
-Este é o ÚNICO arquivo do projeto que abre o dados.json.
-Telas nunca chamam este arquivo diretamente: só os serviços.
-
-Formato do JSON:
-{
-  "disciplinas": [{"id": "...", "nome": "Cálculo"}],
-  "tarefas": [{"id": "...", "nome": "Lista 3", "tipo": "Exercício",
-               "prazo": "2026-11-05", "disciplina_id": "...",
-               "status": "A fazer", "descricao": "", "cor": null}]
-}
-"""
 import json
 import os
 

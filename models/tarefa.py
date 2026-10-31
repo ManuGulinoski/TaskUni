@@ -1,14 +1,3 @@
-"""
-Modelo Tarefa.
-
-Responsável: Pessoa 1
-Este arquivo NÃO importa tkinter nem lê o JSON.
-
-IMPORTANTE:
-- "Atrasada" e a prioridade NÃO são salvas. São calculadas na hora
-  pelos métodos status_atual() e prioridade().
-- A tarefa guarda o disciplina_id (e não o nome da disciplina).
-"""
 import uuid
 from datetime import date, datetime
 
@@ -30,9 +19,6 @@ class Tarefa:
         self.descricao = descricao
         self.cor = cor                  # código hex ("#378ADD") ou None
 
-    # ------------------------------------------------------------------
-    # Conversão para / do JSON (Pessoa 1)
-    # ------------------------------------------------------------------
     def to_dict(self):
         return {
             "id": self.id,
@@ -58,9 +44,6 @@ class Tarefa:
             cor=dados.get("cor"),
         )
 
-    # ------------------------------------------------------------------
-    # Cálculos automáticos (Pessoa 1)
-    # ------------------------------------------------------------------
     def dias_restantes(self, hoje=None):
         """
         Retorna quantos dias faltam até o prazo (int).
