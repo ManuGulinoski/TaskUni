@@ -53,6 +53,16 @@
       "status": "Em andamento",
       "descricao": "teste",
       "cor": "Amarelo"
+    },
+    {
+      "id": "6bd3f154-e15d-44c5-bbd3-5c426dd4f7f4",
+      "nome": "teste de prazo",
+      "tipo": "Prova",
+      "prazo": "2026-11-01",
+      "disciplina_id": "e45d209a-4c54-4ab5-9dcf-037cc2856397",
+      "status": "Em andamento",
+      "descricao": "",
+      "cor": "Verde"
     }
   ]
 }

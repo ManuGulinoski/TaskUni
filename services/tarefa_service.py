@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from models.tarefa import Tarefa
 from repositorio import armazenamento
 from utils.constantes import *
@@ -11,11 +11,6 @@ def cadastrar_tarefa(nome, tipo, disciplina_id, prazo, descricao="", status="A f
     if not nome:
         raise ValueError("Informe o nome da tarefa.")
 
-    if len(nome) > 50:
-        raise ValueError("O nome deve ter no máximo 50 caracteres.")
-
-    if tipo not in TIPOS:
-        raise ValueError("Selecione um tipo válido.")
 
     disciplinas, tarefas = armazenamento.carregar()
 
@@ -29,8 +24,8 @@ def cadastrar_tarefa(nome, tipo, disciplina_id, prazo, descricao="", status="A f
     except ValueError:
         raise ValueError("Informe uma data válida no formato DD/MM/AAAA.")
 
-    if len(descricao) > 100:
-        raise ValueError("A descrição deve ter no máximo 100 caracteres.")
+    if prazo < date.today():
+        raise ValueError("O prazo não pode ser uma data passada.")
 
     if not cor:
         cor = "Branco"
@@ -46,7 +41,5 @@ def cadastrar_tarefa(nome, tipo, disciplina_id, prazo, descricao="", status="A f
     )
 
     tarefas.append(nova_tarefa)
-
     armazenamento.salvar(disciplinas, tarefas)
-
     return nova_tarefa
