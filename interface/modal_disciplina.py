@@ -209,7 +209,6 @@ class ModalDisciplina:
 
         toast.lift()
 
-        # Remove a notificação após 3 segundos
         self.parent.after(3000, toast.destroy)
 
     def salvar(self):

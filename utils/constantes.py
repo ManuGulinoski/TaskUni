@@ -1,16 +1,6 @@
-"""
-Constantes usadas em todo o projeto.
-
-Responsável: Pessoa 2
-REGRA: ninguém digita "Prova", "A fazer" etc. direto no código.
-Sempre importe daqui:  from utils.constantes import TIPOS, STATUS ...
-"""
-
 import os
 
 # ---------- Arquivo de dados ----------
-# Caminho absoluto, montado a partir da pasta do projeto. Assim funciona
-# mesmo se alguém rodar o main.py pelo botão "Run" do VS Code de outra pasta.
 PASTA_PROJETO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CAMINHO_DADOS = os.path.join(PASTA_PROJETO, "dados", "dados.json")
 
@@ -26,8 +16,6 @@ TIPO_EXERCICIO = "Exercício"
 TIPOS = [TIPO_PROVA, TIPO_TRABALHO, TIPO_EXERCICIO]
 
 # ---------- Status ----------
-# Os 3 primeiros o usuário escolhe. "Atrasada" é calculado automaticamente
-# e NUNCA é salvo no JSON.
 STATUS_A_FAZER = "A fazer"
 STATUS_EM_ANDAMENTO = "Em andamento"
 STATUS_CONCLUIDA = "Concluída"
@@ -48,8 +36,6 @@ PRAZO_HOJE = "Hoje"
 PRAZO_ESTA_SEMANA = "Esta semana"
 PRAZO_SEMANA_QUE_VEM = "Semana que vem"
 FILTROS_PRAZO = [PRAZO_HOJE, PRAZO_ESTA_SEMANA, PRAZO_SEMANA_QUE_VEM]
-
-# Opção "sem filtro" usada nos Combobox de filtro
 OPCAO_TODOS = "Todos"
 
 # ---------- Datas ----------
@@ -58,12 +44,13 @@ FORMATO_DATA_TELA = "%d/%m/%Y"   # como a data aparece para o usuário
 
 # ---------- Cores da tarefa (campo opcional) ----------
 CORES_TAREFA = {
-    "Nenhuma": None,
+    "Branco": "#FFFFFF",
     "Azul": "#378ADD",
     "Verde": "#639922",
     "Amarelo": "#EF9F27",
     "Vermelho": "#E24B4A",
     "Roxo": "#7F77DD",
+    "Laranja": "#E06C26"
 }
 
 # ---------- Visual da interface ----------
