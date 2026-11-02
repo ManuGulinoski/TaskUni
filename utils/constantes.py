@@ -51,6 +51,7 @@ FILTROS_PRAZO = [PRAZO_HOJE, PRAZO_ESTA_SEMANA, PRAZO_SEMANA_QUE_VEM]
 
 # Opção "sem filtro" usada nos Combobox de filtro
 OPCAO_TODOS = "Todos"
+OPCAO_TODAS = "Todas"   # usado no filtro de disciplina
 
 # ---------- Datas ----------
 FORMATO_DATA_JSON = "%Y-%m-%d"   # como a data é salva no JSON
