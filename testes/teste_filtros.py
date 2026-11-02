@@ -10,7 +10,7 @@ import unittest
 from datetime import date
 
 from models.tarefa import Tarefa
-from servicos.filtro_service import filtrar_tarefas
+from services.filtro_service import filtrar_tarefas
 
 HOJE = date(2026, 11, 4)
 
