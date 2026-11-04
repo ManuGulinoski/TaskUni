@@ -31,6 +31,10 @@
     {
       "id": "6ead5e22-74cf-4be7-a654-d5d11ef7993d",
       "nome": "t"
+    },
+    {
+      "id": "7b58cfff-ae49-4972-994a-ba8fe7f78d40",
+      "nome": "ryefioygslizf"
     }
   ],
   "tarefas": [
@@ -63,6 +67,16 @@
       "status": "Em andamento",
       "descricao": "",
       "cor": "Verde"
+    },
+    {
+      "id": "c7c27be3-fa0b-4564-a075-1e38b34e9fee",
+      "nome": "teste 122112",
+      "tipo": "Trabalho",
+      "prazo": "2027-05-20",
+      "disciplina_id": "50de3aa8-afdb-4029-9bda-41457084153b",
+      "status": "A fazer",
+      "descricao": "",
+      "cor": "Branco"
     }
   ]
 }
