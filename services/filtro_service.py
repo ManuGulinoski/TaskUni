@@ -27,7 +27,8 @@ def _prazo_combina(data_prazo, opcao, hoje):
     raise ValueError(f"Opção de prazo inválida: {opcao}")
 
 
-def filtrar_tarefas(tarefas, disciplina_id=None, tipo=None, prazo=None, hoje=None):
+def filtrar_tarefas(tarefas, disciplina_id=None, tipo=None, prazo=None,
+                    status=None, prioridade=None, hoje=None):
     """
     Devolve só as tarefas que atendem a TODOS os critérios escolhidos.
 
@@ -35,7 +36,12 @@ def filtrar_tarefas(tarefas, disciplina_id=None, tipo=None, prazo=None, hoje=Non
     disciplina_id  id da disciplina, "Todas" ou None
     tipo           "Prova", "Trabalho", "Exercício", "Todos" ou None
     prazo          "Hoje", "Esta semana", "Semana que vem", "Todos" ou None
+    status         "A fazer", "Em andamento", "Concluída", "Atrasada", "Todos" ou None
+    prioridade     "Urgente", "Alta", "Média", "Baixa", "Todas" ou None
     hoje           data de referência (padrão: date.today()), para testes
+
+    Status e prioridade são CALCULADOS (status_atual / prioridade da Tarefa),
+    porque "Atrasada" e a prioridade dependem da data de hoje e não ficam no JSON.
     """
     if hoje is None:
         hoje = date.today()
@@ -47,6 +53,10 @@ def filtrar_tarefas(tarefas, disciplina_id=None, tipo=None, prazo=None, hoje=Non
         if not _sem_filtro(tipo) and tarefa.tipo != tipo:
             continue
         if not _sem_filtro(prazo) and not _prazo_combina(tarefa.prazo, prazo, hoje):
+            continue
+        if not _sem_filtro(status) and tarefa.status_atual(hoje) != status:
+            continue
+        if not _sem_filtro(prioridade) and tarefa.prioridade(hoje) != prioridade:
             continue
         resultado.append(tarefa)
 
