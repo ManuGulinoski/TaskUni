@@ -99,7 +99,8 @@ class TesteFiltrosStatusPrioridade(unittest.TestCase):
       s3  prazo 06/11, A fazer       -> A fazer   / Alta  (2 dias)
       s4  prazo 10/11, Em andamento  -> Em andamento / Média (6 dias)
       s5  prazo 20/11, A fazer       -> A fazer   / Baixa (16 dias)
-      s6  prazo 01/11, Concluída     -> Concluída / sem prioridade (não é atrasada)
+      s6  prazo 01/11, Concluída     -> Concluída / Urgente (concluída não vira Atrasada,
+                                         mas a prioridade segue o prazo)
     """
 
     def setUp(self):
@@ -130,7 +131,7 @@ class TesteFiltrosStatusPrioridade(unittest.TestCase):
 
     # Prioridade
     def test_prioridade_urgente(self):
-        self.assertEqual(self.filtrar(prioridade="Urgente"), ["s1", "s2"])
+        self.assertEqual(self.filtrar(prioridade="Urgente"), ["s1", "s2", "s6"])
 
     def test_prioridade_alta(self):
         self.assertEqual(self.filtrar(prioridade="Alta"), ["s3"])
@@ -153,7 +154,7 @@ class TesteFiltrosStatusPrioridade(unittest.TestCase):
         self.assertEqual(len(self.filtrar(status="Todos", prioridade="Todas")), 6)
 
     def test_status_prioridade_sem_resultado(self):
-        self.assertEqual(self.filtrar(status="Concluída", prioridade="Urgente"), [])
+        self.assertEqual(self.filtrar(status="Concluída", prioridade="Baixa"), [])
 
 
 if __name__ == "__main__":

@@ -1,24 +1,9 @@
-"""
-Tela de Tarefas com cards (US08).
-
-Responsável: Pessoa 3
-
-De cima para baixo:
-    1. Topo: título "Tarefas" e botão "Criar tarefa"
-    2. Área dos filtros: disciplina, tipo, status, prioridade + "Filtrar" (US11)
-    3. Lista rolável com um CardTarefa por tarefa, ordenada pelo prazo
-
-A tela não abre o JSON por conta própria: usa armazenamento.carregar(),
-a função da camada de dados (US02).
-
-O que fica para outras US:
-    - US17: o que acontece ao clicar em Criar, Editar, Excluir e Concluir
-"""
 import tkinter as tk
 from tkinter import ttk
 
-from repositorio import armazenamento
 from interface.card_tarefa import CardTarefa
+from interface.modal_tarefa import ModalTarefa
+from services.tarefa_service import verificar_tarefas_atrasadas
 from services.filtro_service import filtrar_tarefas
 from utils.constantes import (
     COR_FUNDO, TIPOS, STATUS_TODOS, PRIORIDADES, OPCAO_TODOS, OPCAO_TODAS,
@@ -32,7 +17,7 @@ MSG_SEM_RESULTADO = "Nenhuma tarefa encontrada para os filtros selecionados."
 class TelaTarefas(tk.Frame):
     def __init__(self, parent, app=None):
         super().__init__(parent, bg=COR_FUNDO)
-        self.app = app   # janela principal (US01); pode ser None nos testes
+        self.app = app
 
         self._criar_topo()
         self._criar_area_filtros()
@@ -40,19 +25,35 @@ class TelaTarefas(tk.Frame):
 
         self.atualizar_lista()
 
-    # ======================================================================
-    # Montagem da tela
-    # ======================================================================
     def _criar_topo(self):
         topo = tk.Frame(self, bg=COR_FUNDO)
         topo.pack(fill="x")
 
-        tk.Label(topo, text="Tarefas", bg=COR_FUNDO,
-                 font=(FONTE, 18, "bold")).pack(side="left")
+        # Botão para voltar à Home
+        ttk.Button(
+            topo,
+            text="← Início",
+            command=self.voltar_inicio
+        ).pack(side="left", padx=(0, 15))
 
-        ttk.Button(topo, text="+ Criar tarefa",
-                   command=self.criar_tarefa).pack(side="right")
+        # Título
+        tk.Label(
+            topo,
+            text="Tarefas",
+            bg=COR_FUNDO,
+            font=(FONTE, 18, "bold")
+        ).pack(side="left")
 
+        # Botão para criar tarefa
+        ttk.Button(
+            topo,
+            text="+ Criar tarefa",
+            command=self.criar_tarefa
+            ).pack(side="right")
+
+    # ======================================================================
+    # Filtros (disciplina, tipo, status e prioridade)
+    # ======================================================================
     def _criar_area_filtros(self):
         """
         Filtros por disciplina, tipo, status e prioridade + botões Filtrar e Limpar.
@@ -60,8 +61,8 @@ class TelaTarefas(tk.Frame):
         Os combos só guardam a ESCOLHA. O filtro só vale depois do clique em
         "Filtrar": o botão copia as escolhas para self.filtros_aplicados, e é
         esse dicionário que _filtrar usa. Assim, se a lista for recarregada por
-        outro motivo (ex.: criar uma tarefa na US17), ela respeita o último
-        filtro aplicado, e não uma escolha que o usuário ainda não confirmou.
+        outro motivo (ex.: criar uma tarefa), ela respeita o último filtro
+        aplicado, e não uma escolha que o usuário ainda não confirmou.
         """
         self.area_filtros = tk.Frame(self, bg=COR_FUNDO)
         self.area_filtros.pack(fill="x", pady=(10, 6))
@@ -126,11 +127,10 @@ class TelaTarefas(tk.Frame):
             combo.current(0)
         self.aplicar_filtros()
 
+    # ======================================================================
+    # Lista rolável
+    # ======================================================================
     def _criar_lista_rolavel(self):
-        """
-        O Tkinter não tem um Frame com barra de rolagem pronto.
-        O truque: um Canvas (que rola) com um Frame dentro dele (onde ficam os cards).
-        """
         container = tk.Frame(self, bg=COR_FUNDO)
         container.pack(fill="both", expand=True)
 
@@ -141,18 +141,15 @@ class TelaTarefas(tk.Frame):
         barra.pack(side="right", fill="y")
         self.canvas.pack(side="left", fill="both", expand=True)
 
-        # Frame interno, colocado "dentro" do canvas
         self.lista = tk.Frame(self.canvas, bg=COR_FUNDO)
         janela_lista = self.canvas.create_window((0, 0), window=self.lista, anchor="nw")
 
-        # Quando os cards mudam de tamanho, atualiza a área que pode rolar
         self.lista.bind("<Configure>", lambda e: self.canvas.configure(
             scrollregion=self.canvas.bbox("all")))
-        # Quando a janela muda de largura, os cards acompanham
+
         self.canvas.bind("<Configure>", lambda e: self.canvas.itemconfigure(
             janela_lista, width=e.width))
 
-        # Roda do mouse só rola enquanto o mouse está sobre a lista
         self.canvas.bind("<Enter>", lambda e: self._ligar_roda_do_mouse(True))
         self.canvas.bind("<Leave>", lambda e: self._ligar_roda_do_mouse(False))
 
@@ -172,28 +169,26 @@ class TelaTarefas(tk.Frame):
     # Lista de cards
     # ======================================================================
     def atualizar_lista(self):
-        """Recarrega os dados e redesenha todos os cards.
-        Chamada ao abrir a tela e, depois, sempre que algo mudar (filtros, US17)."""
-        # 1. Apaga os cards antigos
         for widget in self.lista.winfo_children():
             widget.destroy()
 
-        # 2. Lê os dados pela camada de dados (US02)
-        disciplinas, tarefas = armazenamento.carregar()
-        nomes_disciplinas = {d.id: d.nome for d in disciplinas}
+        disciplinas, tarefas = verificar_tarefas_atrasadas()
+        nomes_disciplinas = {
+            d.id: d.nome for d in disciplinas
+        }
         self._atualizar_opcoes_disciplina(disciplinas)
 
-        # 3. Aplica os filtros e ordena pelo prazo
         visiveis = self._filtrar(tarefas)
-        visiveis = sorted(visiveis, key=lambda t: t.prazo)   # mais próximo primeiro
+        visiveis = sorted(
+            visiveis,
+            key=lambda t: t.prazo
+        )
 
-        # 4. Mensagens de lista vazia (são duas situações diferentes)
         if not tarefas:
             self._mostrar_mensagem(MSG_SEM_TAREFAS)
         elif not visiveis:
             self._mostrar_mensagem(MSG_SEM_RESULTADO)
 
-        # 5. Um card por tarefa
         for tarefa in visiveis:
             nome = nomes_disciplinas.get(tarefa.disciplina_id, "Disciplina não encontrada")
             card = CardTarefa(self.lista, tarefa, nome,
@@ -202,23 +197,21 @@ class TelaTarefas(tk.Frame):
                               ao_concluir=self.concluir_tarefa)
             card.pack(fill="x", pady=4)
 
-        # Volta a rolagem para o topo
         self.canvas.yview_moveto(0)
 
     def _filtrar(self, tarefas):
-        """Aplica os filtros confirmados no botão "Filtrar" (US11)."""
+        """Aplica os filtros confirmados no botão "Filtrar"."""
         return filtrar_tarefas(tarefas, **self.filtros_aplicados)
 
     def _mostrar_mensagem(self, texto):
         tk.Label(self.lista, text=texto, bg=COR_FUNDO, fg="#6B7280",
                  font=(FONTE, 11)).pack(pady=40)
 
-    # ======================================================================
-    # Ações dos botões e ícones (a ligação de verdade é na US17)
-    # ======================================================================
     def criar_tarefa(self):
-        # US17: ModalTarefa(self, ao_cadastrar=lambda tarefa: self.atualizar_lista())
-        print("[US17] Criar tarefa")
+        ModalTarefa(
+        self,
+        ao_cadastrar=lambda tarefa: self.atualizar_lista()
+    )
 
     def editar_tarefa(self, tarefa):
         print(f"[US17] Editar: {tarefa.nome}")
@@ -228,3 +221,7 @@ class TelaTarefas(tk.Frame):
 
     def concluir_tarefa(self, tarefa):
         print(f"[US17] Concluir: {tarefa.nome}")
+
+    def voltar_inicio(self):
+        if self.app:
+            self.app.mostrar_home()

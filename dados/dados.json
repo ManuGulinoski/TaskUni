@@ -35,6 +35,10 @@
     {
       "id": "7b58cfff-ae49-4972-994a-ba8fe7f78d40",
       "nome": "ryefioygslizf"
+    },
+    {
+      "id": "61d6eac2-7ee0-45d7-95ea-331ab98a3639",
+      "nome": "kyjfoyuflyif"
     }
   ],
   "tarefas": [
@@ -74,6 +78,26 @@
       "tipo": "Trabalho",
       "prazo": "2027-05-20",
       "disciplina_id": "50de3aa8-afdb-4029-9bda-41457084153b",
+      "status": "A fazer",
+      "descricao": "",
+      "cor": "Branco"
+    },
+    {
+      "id": "a455e1c6-5cc1-4178-978a-23c25529bc01",
+      "nome": "exercicio de lblblbl",
+      "tipo": "Trabalho",
+      "prazo": "2027-05-20",
+      "disciplina_id": "eac9af83-c59a-4994-8e8d-294c127883e2",
+      "status": "A fazer",
+      "descricao": "",
+      "cor": "Branco"
+    },
+    {
+      "id": "7c1d7cf8-6df6-4008-9f9f-ea9e7138bc00",
+      "nome": "teste de interface",
+      "tipo": "Trabalho",
+      "prazo": "2029-05-20",
+      "disciplina_id": "110a66ba-d753-4552-b5ed-d164d6b467ae",
       "status": "A fazer",
       "descricao": "",
       "cor": "Branco"
