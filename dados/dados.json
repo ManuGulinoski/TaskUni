@@ -101,6 +101,16 @@
       "status": "A fazer",
       "descricao": "",
       "cor": "Branco"
+    },
+    {
+      "id": "e07df0c6-9d3f-4c63-a143-7e6e9dee773e",
+      "nome": "matematica",
+      "tipo": "Exercício",
+      "prazo": "2026-12-18",
+      "disciplina_id": "0a38637a-16a2-401c-a595-cdf883ffe3aa",
+      "status": "A fazer",
+      "descricao": "",
+      "cor": "Branco"
     }
   ]
 }

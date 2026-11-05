@@ -84,6 +84,10 @@ class App:
                 self.janela,
                 app=self
             )
+        else:
+            # Recarrega ao voltar para a tela: disciplinas e tarefas cadastradas
+            # pela Home aparecem nos cards e no filtro de disciplina
+            self.tela_tarefas.atualizar_lista()
 
         self.tela_tarefas.pack(
             fill="both",
