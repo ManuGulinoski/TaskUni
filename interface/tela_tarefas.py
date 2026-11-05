@@ -5,6 +5,8 @@ from repositorio import armazenamento
 from interface.card_tarefa import CardTarefa
 from utils.constantes import COR_FUNDO
 from interface.modal_tarefa import ModalTarefa
+from services.tarefa_service import verificar_tarefas_atrasadas
+
 FONTE = "Segoe UI"
 MSG_SEM_TAREFAS = "Nenhuma tarefa cadastrada."
 MSG_SEM_RESULTADO = "Nenhuma tarefa encontrada para os filtros selecionados."
@@ -101,27 +103,25 @@ class TelaTarefas(tk.Frame):
     # Lista de cards
     # ======================================================================
     def atualizar_lista(self):
-        """Recarrega os dados e redesenha todos os cards.
-        Chamada ao abrir a tela e, depois, sempre que algo mudar (filtros, US17)."""
-        # 1. Apaga os cards antigos
         for widget in self.lista.winfo_children():
             widget.destroy()
 
-        # 2. Lê os dados pela camada de dados (US02)
-        disciplinas, tarefas = armazenamento.carregar()
-        nomes_disciplinas = {d.id: d.nome for d in disciplinas}
+        disciplinas, tarefas = verificar_tarefas_atrasadas()
+        nomes_disciplinas = {
+            d.id: d.nome for d in disciplinas
+        }
 
-        # 3. Aplica os filtros (por enquanto nenhum) e ordena pelo prazo
         visiveis = self._filtrar(tarefas)
-        visiveis = sorted(visiveis, key=lambda t: t.prazo)   # mais próximo primeiro
+        visiveis = sorted(
+            visiveis, 
+            key=lambda t: t.prazo
+        )
 
-        # 4. Mensagens de lista vazia (são duas situações diferentes)
         if not tarefas:
             self._mostrar_mensagem(MSG_SEM_TAREFAS)
         elif not visiveis:
             self._mostrar_mensagem(MSG_SEM_RESULTADO)
 
-        # 5. Um card por tarefa
         for tarefa in visiveis:
             nome = nomes_disciplinas.get(tarefa.disciplina_id, "Disciplina não encontrada")
             card = CardTarefa(self.lista, tarefa, nome,
@@ -130,21 +130,15 @@ class TelaTarefas(tk.Frame):
                               ao_concluir=self.concluir_tarefa)
             card.pack(fill="x", pady=4)
 
-        # Volta a rolagem para o topo
         self.canvas.yview_moveto(0)
 
     def _filtrar(self, tarefas):
-        """Ponto de encaixe da US11: ela troca este corpo por
-        filtro_service.filtrar_tarefas(tarefas, ...valores dos filtros...)."""
         return tarefas
 
     def _mostrar_mensagem(self, texto):
         tk.Label(self.lista, text=texto, bg=COR_FUNDO, fg="#6B7280",
                  font=(FONTE, 11)).pack(pady=40)
 
-    # ======================================================================
-    # Ações dos botões e ícones (a ligação de verdade é na US17)
-    # ======================================================================
     def criar_tarefa(self):
         ModalTarefa(
         self,

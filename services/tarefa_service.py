@@ -43,3 +43,20 @@ def cadastrar_tarefa(nome, tipo, disciplina_id, prazo, descricao="", status="A f
     tarefas.append(nova_tarefa)
     armazenamento.salvar(disciplinas, tarefas)
     return nova_tarefa
+
+def verificar_tarefas_atrasadas():
+    disciplinas, tarefas = armazenamento.carregar()
+    hoje = date.today()
+    houve_alteracao = False
+    for tarefa in tarefas:
+
+        if (
+            tarefa.prazo < hoje
+            and tarefa.status != STATUS_CONCLUIDA
+            and tarefa.status != STATUS_ATRASADA
+        ):
+            tarefa.status = STATUS_ATRASADA
+            houve_alteracao = True
+    if houve_alteracao:
+        armazenamento.salvar(disciplinas, tarefas)
+    return disciplinas, tarefas
