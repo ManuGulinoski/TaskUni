@@ -1,27 +1,10 @@
-"""
-Tela de Tarefas com cards (US08).
-
-Responsável: Pessoa 3
-
-De cima para baixo:
-    1. Topo: título "Tarefas" e botão "Criar tarefa"
-    2. Área dos filtros (reservada; os controles entram na US11)
-    3. Lista rolável com um CardTarefa por tarefa, ordenada pelo prazo
-
-A tela não abre o JSON por conta própria: usa armazenamento.carregar(),
-a função da camada de dados (US02).
-
-O que fica para outras US:
-    - US11: controles dos filtros (usa _filtrar e atualizar_lista)
-    - US17: o que acontece ao clicar em Criar, Editar, Excluir e Concluir
-"""
 import tkinter as tk
 from tkinter import ttk
 
 from repositorio import armazenamento
 from interface.card_tarefa import CardTarefa
 from utils.constantes import COR_FUNDO
-
+from interface.modal_tarefa import ModalTarefa
 FONTE = "Segoe UI"
 MSG_SEM_TAREFAS = "Nenhuma tarefa cadastrada."
 MSG_SEM_RESULTADO = "Nenhuma tarefa encontrada para os filtros selecionados."
@@ -30,7 +13,7 @@ MSG_SEM_RESULTADO = "Nenhuma tarefa encontrada para os filtros selecionados."
 class TelaTarefas(tk.Frame):
     def __init__(self, parent, app=None):
         super().__init__(parent, bg=COR_FUNDO)
-        self.app = app   # janela principal (US01); pode ser None nos testes
+        self.app = app   
 
         self._criar_topo()
         self._criar_area_filtros()
@@ -38,21 +21,35 @@ class TelaTarefas(tk.Frame):
 
         self.atualizar_lista()
 
-    # ======================================================================
-    # Montagem da tela
-    # ======================================================================
+    
     def _criar_topo(self):
         topo = tk.Frame(self, bg=COR_FUNDO)
         topo.pack(fill="x")
 
-        tk.Label(topo, text="Tarefas", bg=COR_FUNDO,
-                 font=(FONTE, 18, "bold")).pack(side="left")
+        # Botão para voltar à Home
+        ttk.Button(
+            topo,
+            text="← Início",
+            command=self.voltar_inicio
+        ).pack(side="left", padx=(0, 15))
 
-        ttk.Button(topo, text="+ Criar tarefa",
-                   command=self.criar_tarefa).pack(side="right")
+        # Título
+        tk.Label(
+            topo,
+            text="Tarefas",
+            bg=COR_FUNDO,
+            font=(FONTE, 18, "bold")
+        ).pack(side="left")
+
+        # Botão para criar tarefa
+        ttk.Button(
+            topo,
+            text="+ Criar tarefa",
+            command=self.criar_tarefa
+            ).pack(side="right")
 
     def _criar_area_filtros(self):
-        """Espaço reservado para os filtros. A US11 coloca os controles aqui."""
+        
         self.area_filtros = tk.Frame(self, bg=COR_FUNDO)
         self.area_filtros.pack(fill="x", pady=(10, 6))
 
@@ -60,10 +57,9 @@ class TelaTarefas(tk.Frame):
                  fg="#9CA3AF", font=(FONTE, 9, "italic")).pack(anchor="w")
 
     def _criar_lista_rolavel(self):
-        """
-        O Tkinter não tem um Frame com barra de rolagem pronto.
-        O truque: um Canvas (que rola) com um Frame dentro dele (onde ficam os cards).
-        """
+        
+        
+        
         container = tk.Frame(self, bg=COR_FUNDO)
         container.pack(fill="both", expand=True)
 
@@ -74,18 +70,18 @@ class TelaTarefas(tk.Frame):
         barra.pack(side="right", fill="y")
         self.canvas.pack(side="left", fill="both", expand=True)
 
-        # Frame interno, colocado "dentro" do canvas
+        
         self.lista = tk.Frame(self.canvas, bg=COR_FUNDO)
         janela_lista = self.canvas.create_window((0, 0), window=self.lista, anchor="nw")
 
-        # Quando os cards mudam de tamanho, atualiza a área que pode rolar
+        
         self.lista.bind("<Configure>", lambda e: self.canvas.configure(
             scrollregion=self.canvas.bbox("all")))
-        # Quando a janela muda de largura, os cards acompanham
+
         self.canvas.bind("<Configure>", lambda e: self.canvas.itemconfigure(
             janela_lista, width=e.width))
 
-        # Roda do mouse só rola enquanto o mouse está sobre a lista
+        
         self.canvas.bind("<Enter>", lambda e: self._ligar_roda_do_mouse(True))
         self.canvas.bind("<Leave>", lambda e: self._ligar_roda_do_mouse(False))
 
@@ -150,8 +146,10 @@ class TelaTarefas(tk.Frame):
     # Ações dos botões e ícones (a ligação de verdade é na US17)
     # ======================================================================
     def criar_tarefa(self):
-        # US17: ModalTarefa(self, ao_cadastrar=lambda tarefa: self.atualizar_lista())
-        print("[US17] Criar tarefa")
+        ModalTarefa(
+        self,
+        ao_cadastrar=lambda tarefa: self.atualizar_lista()
+    )
 
     def editar_tarefa(self, tarefa):
         print(f"[US17] Editar: {tarefa.nome}")
@@ -161,3 +159,7 @@ class TelaTarefas(tk.Frame):
 
     def concluir_tarefa(self, tarefa):
         print(f"[US17] Concluir: {tarefa.nome}")
+
+    def voltar_inicio(self):
+        if self.app:
+            self.app.mostrar_home()
