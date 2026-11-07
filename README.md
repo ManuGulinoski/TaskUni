@@ -2,6 +2,8 @@
 
 Gerenciador de tarefas acadêmicas com interface gráfica desktop, feito em Python com Tkinter. Com ele você cadastra suas disciplinas, organiza provas, trabalhos e exercícios por prazo e acompanha o que está pendente, em andamento ou atrasado.
 
+**Autores:** Ana Clara · Eduarda Tavares · Emanuele Gulinoski · Rebeca dos Santos
+
 ## Funcionalidades
 
 - **Disciplinas**: cadastro de disciplinas com validação de nome vazio e de duplicidade (sem diferenciar maiúsculas/minúsculas).
@@ -37,10 +39,10 @@ Gerenciador de tarefas acadêmicas com interface gráfica desktop, feito em Pyth
    cd TaskUni
    ```
 
-2. Instale a dependência:
+2. Instale as dependências:
 
    ```bash
-   pip install ctkfontawesome
+   pip install -r requirements.txt
    ```
 
    > No Linux, o Tkinter pode precisar ser instalado à parte (por exemplo, `sudo apt install python3-tk`).
@@ -64,6 +66,7 @@ O prazo deve ser informado no formato `DD/MM/AAAA` e não pode ser uma data pass
 ```
 TaskUni/
 ├── main.py                  # Janela principal e navegação entre telas
+├── requirements.txt         # Dependências do projeto
 ├── dados/
 │   └── dados.json           # Armazenamento local (disciplinas e tarefas)
 ├── models/
@@ -84,8 +87,6 @@ TaskUni/
 │   ├── constantes.py        # Constantes, cores e textos
 │   └── icones.py            # Ícones da interface
 └── testes/
-    ├── teste_filtros.py         # Testes unitários dos filtros
-    ├── teste_armazenamento.py   # Teste de salvar/carregar
     └── abrir_tela_tarefas.py    # Abre só a tela de tarefas
 ```
 
