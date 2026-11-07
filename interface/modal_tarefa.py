@@ -3,21 +3,16 @@ import tkinter as tk
 from tkinter import ttk
 
 from repositorio import armazenamento
-from services.tarefa_service import cadastrar_tarefa
+from services.tarefa_service import *
 
-from utils.constantes import (
-    TIPOS,
-    STATUS_SELECIONAVEIS,
-    CORES_TAREFA
-)
-
-
+from utils.constantes import *
 class ModalTarefa:
 
-    def __init__(self, parent, ao_cadastrar=None):
+    def __init__(self, parent, tarefa=None, ao_salvar=None):
         self.parent = parent
-        self.ao_cadastrar = ao_cadastrar
-
+        self.tarefa = tarefa
+        self.ao_salvar = ao_salvar
+        self.modo_edicao = tarefa is not None
         self.cor_fundo = "#808080"
         self.cor_fonte = "#333333"
         self.cor_campo = "#CCCCCC"
@@ -70,7 +65,7 @@ class ModalTarefa:
 
         tk.Label(
             self.janela,
-            text="Nova tarefa",
+            text="Editar tarefa" if self.modo_edicao else "Nova tarefa",
             font=("Arial", 20, "bold"),
             bg="white",
             fg=self.cor_fonte
@@ -82,7 +77,10 @@ class ModalTarefa:
 
         tk.Label(
             self.janela,
-            text="Adicione uma tarefa para organizar suas atividades",
+            text=( "Atualize as informações da sua tarefa"
+                  if self.modo_edicao
+                  else "Adicione uma tarefa para organizar suas atividades"
+),
             font=("Arial", 10),
             bg="white",
             fg="#888888"
@@ -290,7 +288,7 @@ class ModalTarefa:
 
         tk.Button(
             botoes,
-            text="Adicionar",
+            text="Salvar alterações" if self.modo_edicao else "Adicionar",
             font=("Arial", 11, "bold"),
             bg=self.cor_roxo,
             fg="white",
@@ -306,6 +304,9 @@ class ModalTarefa:
             ipady=10,
             padx=5
         )
+
+        if self.modo_edicao:
+            self.preencher_campos()
 
         self.entrada_nome.focus_set()
 
@@ -343,6 +344,53 @@ class ModalTarefa:
             sticky="w"
         )
 
+    def preencher_campos(self):
+        tarefa = self.tarefa
+
+        # Nome
+        self.entrada_nome.delete(0, tk.END)
+        self.entrada_nome.insert(0, tarefa.nome)
+        self.entrada_nome.config(fg=self.cor_fonte)
+
+        # Tipo
+        self.combo_tipo.set(tarefa.tipo)
+
+        # Disciplina
+        nome_disciplina = next(
+            (
+                nome
+                for nome, id_disciplina in self.mapa_disciplinas.items()
+                if id_disciplina == tarefa.disciplina_id
+            ),
+            ""
+        )
+
+        self.combo_disciplina.set(nome_disciplina)
+
+        # Prazo
+        self.entrada_prazo.delete(0, tk.END)
+        self.entrada_prazo.insert(
+            0,
+            tarefa.prazo.strftime("%d/%m/%Y")
+        )
+        self.entrada_prazo.config(fg=self.cor_fonte)
+
+        # Descrição
+        self.entrada_descricao.delete(0, tk.END)
+        self.entrada_descricao.insert(0, tarefa.descricao or "")
+        self.entrada_descricao.config(fg=self.cor_fonte)
+
+        # Status
+        status = tarefa.status
+
+        if status == STATUS_ATRASADA:
+            status = STATUS_A_FAZER
+
+        self.combo_status.set(status)
+
+        # Cor
+        self.combo_cor.set(tarefa.cor or "Branco")
+
     def salvar(self):
 
         nome = self.entrada_nome.get()
@@ -353,6 +401,7 @@ class ModalTarefa:
         status = self.combo_status.get()
         cor = self.combo_cor.get()
 
+        # Remove os placeholders
         if nome == self.placeholder_nome:
             nome = ""
 
@@ -365,25 +414,42 @@ class ModalTarefa:
         disciplina_id = self.mapa_disciplinas.get(disciplina_nome)
 
         try:
-            tarefa = cadastrar_tarefa(
-                nome=nome,
-                tipo=tipo,
-                disciplina_id=disciplina_id,
-                prazo=prazo,
-                descricao=descricao,
-                status=status,
-                cor=cor
-            )
 
-            if self.ao_cadastrar:
-                self.ao_cadastrar(tarefa)
+            if self.modo_edicao:
+
+                tarefa = editar_tarefa(
+                    tarefa_id=self.tarefa.id,
+                    nome=nome,
+                    tipo=tipo,
+                    disciplina_id=disciplina_id,
+                    prazo=prazo,
+                    descricao=descricao,
+                    status=status,
+                    cor=cor
+                )
+
+                mensagem = "Tarefa atualizada com sucesso!"
+
+            else:
+
+                tarefa = cadastrar_tarefa(
+                    nome=nome,
+                    tipo=tipo,
+                    disciplina_id=disciplina_id,
+                    prazo=prazo,
+                    descricao=descricao,
+                    status=status,
+                    cor=cor
+                )
+
+                mensagem = "Tarefa cadastrada com sucesso!"
+
+            if self.ao_salvar:
+                self.ao_salvar(tarefa)
 
             self.fechar()
 
-            self.exibir_toast(
-                "Tarefa cadastrada com sucesso!",
-                "sucesso"
-            )
+            self.exibir_toast(mensagem, "sucesso")
 
         except ValueError as erro:
             self.exibir_toast(str(erro), "erro")

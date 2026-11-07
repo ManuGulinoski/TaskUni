@@ -48,13 +48,13 @@
   "tarefas": [
     {
       "id": "ad6e08fe-a3ca-4005-86d4-14c2696c4fde",
-      "nome": "Teste",
-      "tipo": "Prova",
-      "prazo": "2025-04-20",
-      "disciplina_id": "110a66ba-d753-4552-b5ed-d164d6b467ae",
-      "status": "Atrasada",
-      "descricao": "",
-      "cor": "Vermelho"
+      "nome": "agora editada",
+      "tipo": "Exercício",
+      "prazo": "2028-10-20",
+      "disciplina_id": "0a38637a-16a2-401c-a595-cdf883ffe3aa",
+      "status": "Em andamento",
+      "descricao": "EDDODODODODOK",
+      "cor": "Azul"
     },
     {
       "id": "e2e99225-bd0f-4c11-91f2-3944edfc08bb",
@@ -125,6 +125,16 @@
       "status": "A fazer",
       "descricao": "",
       "cor": "Branco"
+    },
+    {
+      "id": "a18abd8c-28a8-4a9c-a58a-32a1fbf47e7c",
+      "nome": "WIOEÇFHÍOFHE",
+      "tipo": "Trabalho",
+      "prazo": "2026-11-08",
+      "disciplina_id": "0a38637a-16a2-401c-a595-cdf883ffe3aa",
+      "status": "A fazer",
+      "descricao": "",
+      "cor": "Verde"
     }
   ]
 }

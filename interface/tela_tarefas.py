@@ -192,12 +192,15 @@ class TelaTarefas(tk.Frame):
 
     def criar_tarefa(self):
         ModalTarefa(
-        self,
-        ao_cadastrar=lambda tarefa: self.atualizar_lista()
-    )
-
+            self,
+            ao_salvar=lambda tarefa: self.atualizar_lista()
+        )
     def editar_tarefa(self, tarefa):
-        print(f"[US17] Editar: {tarefa.nome}")
+        ModalTarefa(
+            self,
+            tarefa=tarefa,
+            ao_salvar=lambda tarefa: self.atualizar_lista()
+        )
 
     def excluir_tarefa(self, tarefa):
         print(f"[US17] Excluir: {tarefa.nome}")
