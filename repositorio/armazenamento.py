@@ -7,14 +7,6 @@ from utils.constantes import CAMINHO_DADOS
 
 
 def carregar():
-    """
-    Lê o JSON e retorna uma tupla (lista_de_disciplinas, lista_de_tarefas),
-    já convertidas em objetos Disciplina e Tarefa.
-
-    Se o arquivo não existir ou estiver vazio, retorna ([], []).
-    Dica: use os.path.exists, json.load(arquivo) e Disciplina.from_dict / Tarefa.from_dict.
-    Abra com encoding="utf-8" por causa dos acentos.
-    """
     if not os.path.exists(CAMINHO_DADOS):
         return [], []
 
@@ -32,11 +24,6 @@ def carregar():
 
 
 def salvar(disciplinas, tarefas):
-    """
-    Recebe as listas de objetos e grava tudo no JSON (sobrescreve o arquivo).
-    Dica: json.dump(dados, arquivo, ensure_ascii=False, indent=2)
-    Crie a pasta 'dados' se ela não existir (os.makedirs(..., exist_ok=True)).
-    """
     os.makedirs(os.path.dirname(CAMINHO_DADOS), exist_ok=True)
 
     dados = {
