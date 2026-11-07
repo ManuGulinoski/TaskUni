@@ -58,7 +58,7 @@
     },
     {
       "id": "e2e99225-bd0f-4c11-91f2-3944edfc08bb",
-      "nome": "OUTRO",
+      "nome": "yacoiyagc",
       "tipo": "Trabalho",
       "prazo": "2025-05-10",
       "disciplina_id": "e45d209a-4c54-4ab5-9dcf-037cc2856397",
@@ -135,6 +135,16 @@
       "status": "A fazer",
       "descricao": "",
       "cor": "Verde"
+    },
+    {
+      "id": "a9de1b67-98c9-4db8-93c0-50ec3213c287",
+      "nome": "apresentacao",
+      "tipo": "Trabalho",
+      "prazo": "2026-11-10",
+      "disciplina_id": "eac9af83-c59a-4994-8e8d-294c127883e2",
+      "status": "Em andamento",
+      "descricao": "",
+      "cor": "Roxo"
     }
   ]
 }
