@@ -86,8 +86,6 @@ TaskUni/
 ├── utils/
 │   ├── constantes.py        # Constantes, cores e textos
 │   └── icones.py            # Ícones da interface
-└── testes/
-    └── abrir_tela_tarefas.py    # Abre só a tela de tarefas
 ```
 
 O código segue uma separação em camadas: **interface** (telas), **services** (regras de negócio), **models** (entidades) e **repositorio** (persistência).

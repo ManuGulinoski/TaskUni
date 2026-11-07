@@ -69,7 +69,7 @@ class App:
     def abrir_modal_tarefa(self):
         ModalTarefa(
             self.janela,
-            ao_cadastrar=lambda tarefa: (
+            ao_salvar=lambda tarefa: (
                 self.tela_tarefas.atualizar_lista()
                 if self.tela_tarefas else None
             )
