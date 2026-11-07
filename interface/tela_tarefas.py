@@ -5,15 +5,7 @@ from interface.card_tarefa import CardTarefa
 from interface.modal_tarefa import ModalTarefa
 from services.tarefa_service import verificar_tarefas_atrasadas
 from services.filtro_service import filtrar_tarefas
-from utils.constantes import (
-    COR_FUNDO, TIPOS, STATUS_TODOS, PRIORIDADES, OPCAO_TODOS, OPCAO_TODAS,
-)
-
-FONTE = "Segoe UI"
-MSG_SEM_TAREFAS = "Nenhuma tarefa cadastrada."
-MSG_SEM_RESULTADO = "Nenhuma tarefa encontrada para os filtros selecionados."
-
-
+from utils.constantes import * 
 class TelaTarefas(tk.Frame):
     def __init__(self, parent, app=None):
         super().__init__(parent, bg=COR_FUNDO)
@@ -55,15 +47,6 @@ class TelaTarefas(tk.Frame):
     # Filtros (disciplina, tipo, status e prioridade)
     # ======================================================================
     def _criar_area_filtros(self):
-        """
-        Filtros por disciplina, tipo, status e prioridade + botões Filtrar e Limpar.
-
-        Os combos só guardam a ESCOLHA. O filtro só vale depois do clique em
-        "Filtrar": o botão copia as escolhas para self.filtros_aplicados, e é
-        esse dicionário que _filtrar usa. Assim, se a lista for recarregada por
-        outro motivo (ex.: criar uma tarefa), ela respeita o último filtro
-        aplicado, e não uma escolha que o usuário ainda não confirmou.
-        """
         self.area_filtros = tk.Frame(self, bg=COR_FUNDO)
         self.area_filtros.pack(fill="x", pady=(10, 6))
 
@@ -209,12 +192,15 @@ class TelaTarefas(tk.Frame):
 
     def criar_tarefa(self):
         ModalTarefa(
-        self,
-        ao_cadastrar=lambda tarefa: self.atualizar_lista()
-    )
-
+            self,
+            ao_salvar=lambda tarefa: self.atualizar_lista()
+        )
     def editar_tarefa(self, tarefa):
-        print(f"[US17] Editar: {tarefa.nome}")
+        ModalTarefa(
+            self,
+            tarefa=tarefa,
+            ao_salvar=lambda tarefa: self.atualizar_lista()
+        )
 
     def excluir_tarefa(self, tarefa):
         print(f"[US17] Excluir: {tarefa.nome}")

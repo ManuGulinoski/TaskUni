@@ -29,20 +29,6 @@ def _prazo_combina(data_prazo, opcao, hoje):
 
 def filtrar_tarefas(tarefas, disciplina_id=None, tipo=None, prazo=None,
                     status=None, prioridade=None, hoje=None):
-    """
-    Devolve só as tarefas que atendem a TODOS os critérios escolhidos.
-
-    tarefas        lista de objetos Tarefa (ex.: armazenamento.carregar()[1])
-    disciplina_id  id da disciplina, "Todas" ou None
-    tipo           "Prova", "Trabalho", "Exercício", "Todos" ou None
-    prazo          "Hoje", "Esta semana", "Semana que vem", "Todos" ou None
-    status         "A fazer", "Em andamento", "Concluída", "Atrasada", "Todos" ou None
-    prioridade     "Urgente", "Alta", "Média", "Baixa", "Todas" ou None
-    hoje           data de referência (padrão: date.today()), para testes
-
-    Status e prioridade são CALCULADOS (status_atual / prioridade da Tarefa),
-    porque "Atrasada" e a prioridade dependem da data de hoje e não ficam no JSON.
-    """
     if hoje is None:
         hoje = date.today()
 

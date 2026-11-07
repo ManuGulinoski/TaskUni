@@ -1,6 +1,5 @@
 
 import tkinter as tk
-
 from services.disciplina_service import cadastrar_disciplina
 
 

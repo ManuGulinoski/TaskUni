@@ -1,16 +1,7 @@
 import uuid
 from datetime import date, datetime
 
-from utils.constantes import (
-    FORMATO_DATA_JSON,
-    STATUS_A_FAZER,
-    STATUS_ATRASADA,
-    STATUS_CONCLUIDA,
-    PRIORIDADE_URGENTE,
-    PRIORIDADE_ALTA,
-    PRIORIDADE_MEDIA,
-    PRIORIDADE_BAIXA
-)
+from utils.constantes import *
 
 
 class Tarefa:
