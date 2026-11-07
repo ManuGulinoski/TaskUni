@@ -3,28 +3,12 @@ import tkinter as tk
 from utils.constantes import *
 from utils.icones import criar_icones
 
-
-FONTE = "Segoe UI"
-COR_CARD = "white"
-COR_BORDA = "#E5E7EB"
-COR_TEXTO = "#111827"
-COR_TEXTO_SECUNDARIO = "#6B7280"
-COR_NEUTRA = "#D1D5DB"
-COR_ATRASADA = "#DC2626"
-COR_CONCLUIDA = "#16A34A"
-
-
-CORES_PADRAO = ("Branco", "Padrão")
-
-
 def cor_da_faixa(cor):
 
     if not cor or cor in CORES_PADRAO:
         return COR_NEUTRA
 
-    if cor.startswith("#"):
-        return CORES_TAREFA.get(cor, COR_NEUTRA)
-
+    return CORES_TAREFA.get(cor, COR_NEUTRA)
 
 def status_exibido(tarefa):
 
