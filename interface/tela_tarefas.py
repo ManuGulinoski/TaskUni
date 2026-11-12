@@ -60,11 +60,48 @@ class TelaTarefas(tk.Frame):
             font=(FONTE, 18, "bold")
         ).pack(side="left")
 
-        ttk.Button(
-            topo,
-            text="+ Criar tarefa",
-            command=self.criar_tarefa
-        ).pack(side="right")
+
+
+
+        botao_nova = tk.Button(
+        topo,
+        text="+ Nova tarefa",
+        font=(FONTE, 10, "bold"),
+        bg=COR_BOTAO_PRINCIPAL,
+        fg=COR_TEXTO_BOTAO,
+        activebackground=COR_BOTAO_HOVER,
+        activeforeground=COR_TEXTO_BOTAO,
+        relief="flat",
+        bd=0,
+        highlightthickness=0,
+        cursor="hand2",
+        width=14,
+        height=2,
+        command=self.criar_tarefa
+    )
+
+        botao_nova.pack(
+                side="right",
+                padx=5,
+                pady=5
+            )
+
+        botao_nova.bind(
+                "<Enter>",
+                lambda evento: botao_nova.config(
+                    bg=COR_BOTAO_HOVER
+                )
+            )
+
+        botao_nova.bind(
+                "<Leave>",
+                lambda evento: botao_nova.config(
+                    bg=COR_BOTAO_PRINCIPAL
+                )
+            )
+
+
+
 
     # ==========================================================
     # FILTROS

@@ -1,6 +1,4 @@
-
 import tkinter as tk
-from tkinter import ttk
 import threading
 
 from interface.modal_disciplina import ModalDisciplina
@@ -8,26 +6,49 @@ from interface.modal_tarefa import ModalTarefa
 from interface.tela_tarefas import TelaTarefas
 
 from services.frase_service import buscar_frase
-from utils.constantes import FRASE_RESERVA
+from utils.constantes import *
 
 
 class App:
+
     def __init__(self, janela):
         self.janela = janela
 
-        self.janela.title("TaskUni")
-        self.janela.geometry("800x500")
+        self.janela.title(TITULO_APP)
+        self.janela.geometry(TAMANHO_JANELA)
+        self.janela.configure(bg=COR_FUNDO)
 
         self.tela_tarefas = None
 
-        # Frame da Home
-        self.home = tk.Frame(self.janela)
-        self.home.pack(fill="both", expand=True)
+        # Frame principal da Home
+        self.home = tk.Frame(
+            self.janela,
+            bg=COR_FUNDO
+        )
+
+        self.home.pack(
+            fill="both",
+            expand=True
+        )
 
         self.criar_home()
 
+
     def criar_home(self):
-        # Menu suspenso
+
+        # Barra superior
+        self.topo = tk.Frame(
+            self.home,
+            bg=COR_FUNDO
+        )
+
+        self.topo.pack(
+            fill="x",
+            padx=25,
+            pady=20
+        )
+
+        # Menu suspenso de criação
         self.menu_nova = tk.Menu(
             self.janela,
             tearoff=0
@@ -43,55 +64,88 @@ class App:
             command=self.abrir_modal_disciplina
         )
 
-        # Botão Nova
-        self.botao_nova = ttk.Button(
-            self.home,
-            text="+ Nova",
-            command=self.abrir_menu_nova
+        # Botão Nova no canto superior direito
+        self.botao_nova = self.criar_botao_novo(
+            self.topo,
+            texto="+ Nova",
+            comando=self.abrir_menu_nova
         )
 
-        self.botao_nova.pack(pady=20)
+        self.botao_nova.pack(
+            side="right",
+            padx=5,
+            pady=5
+        )
 
-        # Botão para acessar a tela de tarefas
-        botao_tarefas = ttk.Button(
+        # Conteúdo central da Home
+        conteudo = tk.Frame(
             self.home,
+            bg=COR_FUNDO
+        )
+
+        conteudo.pack(
+            fill="both",
+            expand=True,
+            padx=40,
+            pady=30
+        )
+
+        # Título da Home
+        tk.Label(
+            conteudo,
+            text="Bem-vindo ao TaskUni!",
+            font=(FONTE, 22, "bold"),
+            bg=COR_FUNDO,
+            fg="#111827"
+        ).pack(pady=(30, 10))
+
+        # Botão para acessar as tarefas
+        tk.Button(
+            conteudo,
             text="Ver tarefas",
+            font=(FONTE, 11, "bold"),
+            bg=COR_BOTAO_PRINCIPAL,
+            fg=COR_TEXTO_BOTAO,
+            activebackground=COR_BOTAO_HOVER,
+            activeforeground=COR_TEXTO_BOTAO,
+            relief="flat",
+            bd=0,
+            cursor="hand2",
+            width=18,
+            height=2,
             command=self.mostrar_tarefas
-        )
-
-        botao_tarefas.pack(pady=10)
+        ).pack(pady=15)
 
         # Área da frase motivacional
         self.frame_frase = tk.Frame(
-            self.home,
-            bg="#F3F4F6",
+            conteudo,
+            bg="#FFFFFF",
             padx=30,
-            pady=20
+            pady=25
         )
 
         self.frame_frase.pack(
             fill="x",
             padx=40,
-            pady=30
+            pady=40
         )
 
-        self.titulo_frase = tk.Label(
+        tk.Label(
             self.frame_frase,
             text="Inspire-se!",
-            font=("Segoe UI", 13, "bold"),
-            bg="#F3F4F6",
-            fg="#5b21b6"
-        )
+            font=(FONTE, 14, "bold"),
+            bg="#FFFFFF",
+            fg=COR_BOTAO_PRINCIPAL
+        ).pack(pady=(0, 12))
 
-        self.titulo_frase.pack(pady=(0, 10))
-
+        # Frase reserva exibida inicialmente
         self.label_frase = tk.Label(
             self.frame_frase,
             text=f'"{FRASE_RESERVA[0]}"',
-            font=("Segoe UI", 11),
-            bg="#F3F4F6",
+            font=(FONTE, 12),
+            bg="#FFFFFF",
             fg="#333333",
-            wraplength=650,
+            wraplength=750,
             justify="center"
         )
 
@@ -100,33 +154,98 @@ class App:
         self.label_autor = tk.Label(
             self.frame_frase,
             text=f"— {FRASE_RESERVA[1]}",
-            font=("Segoe UI", 10, "italic"),
-            bg="#F3F4F6",
+            font=(FONTE, 10, "italic"),
+            bg="#FFFFFF",
             fg="#6B7280"
         )
 
         self.label_autor.pack(pady=5)
 
+        # Busca uma frase da API sem bloquear a interface
         self.carregar_frase()
 
+    def criar_botao_novo(self, parent, texto, comando):
+
+        botao = tk.Button(
+            parent,
+            text=texto,
+            font=(FONTE, 10, "bold"),
+            bg=COR_BOTAO_PRINCIPAL,
+            fg=COR_TEXTO_BOTAO,
+            activebackground=COR_BOTAO_HOVER,
+            activeforeground=COR_TEXTO_BOTAO,
+            relief="flat",
+            bd=0,
+            highlightthickness=0,
+            cursor="hand2",
+            width=14,
+            height=2,
+            command=comando
+        )
+
+        # Efeito ao passar o mouse
+        botao.bind(
+            "<Enter>",
+            lambda evento: botao.config(
+                bg=COR_BOTAO_HOVER
+            )
+        )
+
+        botao.bind(
+            "<Leave>",
+            lambda evento: botao.config(
+                bg=COR_BOTAO_PRINCIPAL
+            )
+        )
+
+        return botao
+
+
+    def abrir_menu_nova(self):
+
+        try:
+            self.menu_nova.tk_popup(
+                self.botao_nova.winfo_rootx(),
+                self.botao_nova.winfo_rooty()
+                + self.botao_nova.winfo_height()
+            )
+        finally:
+            self.menu_nova.grab_release()
+
+    def abrir_modal_disciplina(self):
+        ModalDisciplina(self.janela)
+    def abrir_modal_tarefa(self):
+
+        ModalTarefa(
+            self.janela,
+            ao_salvar=lambda tarefa: (
+                self.tela_tarefas.atualizar_lista()
+                if self.tela_tarefas else None
+            )
+        )
     def carregar_frase(self):
+
         threading.Thread(
             target=self._buscar_frase,
             daemon=True
         ).start()
 
     def _buscar_frase(self):
-        frase, autor = buscar_frase()
 
         try:
+            frase, autor = buscar_frase()
+
             self.janela.after(
                 0,
                 lambda: self._atualizar_frase(frase, autor)
             )
-        except tk.TclError:
+
+        except Exception:
+            # Mantém a frase reserva caso ocorra algum erro
             pass
 
     def _atualizar_frase(self, frase, autor):
+
         self.label_frase.config(
             text=f'"{frase}"'
         )
@@ -135,35 +254,23 @@ class App:
             text=f"— {autor}"
         )
 
-    def abrir_menu_nova(self):
-        self.menu_nova.tk_popup(
-            self.botao_nova.winfo_rootx(),
-            self.botao_nova.winfo_rooty()
-            + self.botao_nova.winfo_height()
-        )
+    # ==========================================================
+    # NAVEGAÇÃO
+    # ==========================================================
 
-    def abrir_modal_disciplina(self):
-        ModalDisciplina(self.janela)
-
-    def abrir_modal_tarefa(self):
-        ModalTarefa(
-            self.janela,
-            ao_salvar=lambda tarefa: (
-                self.tela_tarefas.atualizar_lista()
-                if self.tela_tarefas else None
-            )
-        )
-
-    # Abre a tela de tarefas
     def mostrar_tarefas(self):
+
         self.home.pack_forget()
 
         if self.tela_tarefas is None:
+
             self.tela_tarefas = TelaTarefas(
                 self.janela,
                 app=self
             )
+
         else:
+            # Atualiza tarefas e disciplinas ao abrir a tela
             self.tela_tarefas.atualizar_lista()
 
         self.tela_tarefas.pack(
@@ -173,8 +280,8 @@ class App:
             pady=20
         )
 
-    # Retorna para a Home
     def mostrar_home(self):
+
         if self.tela_tarefas:
             self.tela_tarefas.pack_forget()
 
@@ -184,7 +291,14 @@ class App:
         )
 
 
+# ==============================================================
+# EXECUÇÃO
+# ==============================================================
+
 if __name__ == "__main__":
+
     janela = tk.Tk()
+
     app = App(janela)
+
     janela.mainloop()
