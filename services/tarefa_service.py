@@ -1,7 +1,9 @@
 from datetime import datetime, date
+
 from models.tarefa import Tarefa
 from repositorio import armazenamento
 from utils.constantes import *
+
 
 def validar_nome(nome):
     nome = nome.strip()
@@ -27,24 +29,40 @@ def validar_descricao(descricao):
 
     return descricao
 
+
 def cor_padrao(cor):
     if not cor:
         cor = "Branco"
+
     return cor
+
 
 def validar_prazo(prazo):
     try:
         prazo = datetime.strptime(prazo, "%d/%m/%Y").date()
+
     except ValueError:
-        raise ValueError("Informe uma data válida no formato DD/MM/AAAA.")
+        raise ValueError(
+            "Informe uma data válida no formato DD/MM/AAAA."
+        )
 
     if prazo < date.today():
-        raise ValueError("O prazo não pode ser uma data passada.")
+        raise ValueError(
+            "O prazo não pode ser uma data passada."
+        )
 
     return prazo
 
-def cadastrar_tarefa(nome, tipo, disciplina_id, prazo,
-                     descricao="", status="A fazer", cor="Branco"):
+
+def cadastrar_tarefa(
+    nome,
+    tipo,
+    disciplina_id,
+    prazo,
+    descricao="",
+    status="A fazer",
+    cor="Branco"
+):
 
     nome = validar_nome(nome)
     descricao = validar_descricao(descricao)
@@ -52,7 +70,6 @@ def cadastrar_tarefa(nome, tipo, disciplina_id, prazo,
     disciplinas, tarefas = armazenamento.carregar()
 
     prazo = validar_prazo(prazo)
-
     cor = cor_padrao(cor)
 
     nova_tarefa = Tarefa(
@@ -71,10 +88,14 @@ def cadastrar_tarefa(nome, tipo, disciplina_id, prazo,
 
     return nova_tarefa
 
+
 def verificar_tarefas_atrasadas():
+
     disciplinas, tarefas = armazenamento.carregar()
+
     hoje = date.today()
     houve_alteracao = False
+
     for tarefa in tarefas:
 
         if (
@@ -84,12 +105,23 @@ def verificar_tarefas_atrasadas():
         ):
             tarefa.status = STATUS_ATRASADA
             houve_alteracao = True
+
     if houve_alteracao:
         armazenamento.salvar(disciplinas, tarefas)
+
     return disciplinas, tarefas
 
-def editar_tarefa(tarefa_id, nome, tipo, disciplina_id,
-                  prazo, descricao="", status="A fazer", cor="Branco"):
+
+def editar_tarefa(
+    tarefa_id,
+    nome,
+    tipo,
+    disciplina_id,
+    prazo,
+    descricao="",
+    status="A fazer",
+    cor="Branco"
+):
 
     nome = validar_nome(nome)
     descricao = validar_descricao(descricao)
@@ -105,12 +137,20 @@ def editar_tarefa(tarefa_id, nome, tipo, disciplina_id,
         raise ValueError("Tarefa não encontrada.")
 
     try:
-        novo_prazo = datetime.strptime(prazo, "%d/%m/%Y").date()
+        novo_prazo = datetime.strptime(
+            prazo,
+            "%d/%m/%Y"
+        ).date()
+
     except ValueError:
-        raise ValueError("Informe uma data válida no formato DD/MM/AAAA.")
+        raise ValueError(
+            "Informe uma data válida no formato DD/MM/AAAA."
+        )
 
     if novo_prazo < date.today() and novo_prazo != tarefa.prazo:
-        raise ValueError("O prazo não pode ser uma data passada.")
+        raise ValueError(
+            "O prazo não pode ser uma data passada."
+        )
 
     cor = cor_padrao(cor)
 
@@ -125,3 +165,38 @@ def editar_tarefa(tarefa_id, nome, tipo, disciplina_id,
     armazenamento.salvar(disciplinas, tarefas)
 
     return tarefa
+
+
+# ==========================================================
+# US11 - EXCLUIR TAREFA
+# ==========================================================
+
+def excluir_tarefa(tarefa_id):
+    """
+    Exclui uma tarefa pelo seu ID e salva a lista atualizada no JSON.
+
+    Retorna a tarefa excluída.
+    """
+
+    disciplinas, tarefas = armazenamento.carregar()
+
+    tarefa_encontrada = next(
+        (
+            tarefa
+            for tarefa in tarefas
+            if tarefa.id == tarefa_id
+        ),
+        None
+    )
+
+    if tarefa_encontrada is None:
+        raise ValueError("A tarefa não foi encontrada.")
+
+    tarefas.remove(tarefa_encontrada)
+
+    armazenamento.salvar(
+        disciplinas,
+        tarefas
+    )
+
+    return tarefa_encontrada

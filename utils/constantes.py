@@ -145,3 +145,9 @@ FRASE_RESERVA = (
 )
 
 URL_ZENQUOTES = "https://zenquotes.io/api/random"
+
+# ---------- Botões principais ----------
+
+COR_BOTAO_PRINCIPAL = "#5B21B6"
+COR_BOTAO_HOVER = "#4C1D95"
+COR_TEXTO_BOTAO = "#FFFFFF"
