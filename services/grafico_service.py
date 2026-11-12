@@ -1,0 +1,30 @@
+from datetime import date
+
+from utils.constantes import STATUS_TODOS
+
+
+def contar_por_status(tarefas, hoje=None):
+    """
+    Conta quantas tarefas existem em cada status (US do gráfico).
+
+    tarefas  lista de objetos Tarefa (ex.: armazenamento.carregar()[1])
+    hoje     data de referência (padrão: date.today()), para testes
+
+    Retorna um dicionário com TODOS os status, na ordem de STATUS_TODOS,
+    mesmo os que têm 0 tarefas. Ex.:
+        {"A fazer": 3, "Em andamento": 1, "Concluída": 0, "Atrasada": 2}
+
+    Usa status_atual(), porque "Atrasada" é calculada pela data de hoje.
+    Lista vazia -> todos os status com 0.
+    """
+    if hoje is None:
+        hoje = date.today()
+
+    contagem = {status: 0 for status in STATUS_TODOS}
+
+    for tarefa in tarefas:
+        status = tarefa.status_atual(hoje)
+        # Um status desconhecido no JSON também entra, para o total bater
+        contagem[status] = contagem.get(status, 0) + 1
+
+    return contagem
