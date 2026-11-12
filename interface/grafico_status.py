@@ -3,6 +3,7 @@ import tkinter as tk
 from utils.constantes import (
     COR_FUNDO,
     STATUS_A_FAZER, STATUS_EM_ANDAMENTO, STATUS_CONCLUIDA, STATUS_ATRASADA,
+    TIPO_PROVA, TIPO_TRABALHO, TIPO_EXERCICIO,
 )
 
 FONTE = "Segoe UI"
@@ -18,22 +19,31 @@ CORES_STATUS = {
     STATUS_ATRASADA: "#DC2626",      # vermelho
 }
 
+CORES_TIPO = {
+    TIPO_PROVA: "#7F77DD",       # roxo
+    TIPO_TRABALHO: "#E06C26",    # laranja
+    TIPO_EXERCICIO: "#0D9488",   # verde-azulado
+}
+
 MSG_SEM_TAREFAS = "Nenhuma tarefa cadastrada para exibir no gráfico."
 
 
-class GraficoStatus(tk.Frame):
+class GraficoBarras(tk.Frame):
     """
-    Gráfico de barras com a quantidade de tarefas por status.
-    Desenhado num tk.Canvas (não precisa instalar nada).
+    Gráfico de barras com a quantidade de tarefas por categoria
+    (status, tipo...). Desenhado num tk.Canvas (não precisa instalar nada).
 
     Uso:
-        grafico = GraficoStatus(parent)
+        grafico = GraficoBarras(parent, cores=CORES_STATUS)
         grafico.atualizar({"A fazer": 3, "Em andamento": 1, ...})
+
+    cores: dicionário categoria -> cor da barra (padrão: cores dos status)
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, cores=None):
         super().__init__(parent, bg=COR_FUNDO)
         self.contagem = {}
+        self.cores = cores if cores is not None else CORES_STATUS
 
         self.canvas = tk.Canvas(self, bg="white", highlightthickness=1,
                                 highlightbackground="#E5E7EB")
@@ -43,7 +53,7 @@ class GraficoStatus(tk.Frame):
         self.canvas.bind("<Configure>", lambda e: self._desenhar())
 
     def atualizar(self, contagem):
-        """Recebe o dicionário de contar_por_status e redesenha."""
+        """Recebe o dicionário de contar_por_status / contar_por_tipo e redesenha."""
         self.contagem = dict(contagem)
         self._desenhar()
 
@@ -66,7 +76,7 @@ class GraficoStatus(tk.Frame):
 
         margem_x = 40
         topo = 60        # espaço para o "Total" e o número acima da barra mais alta
-        base = altura - 50   # espaço para o nome do status embaixo
+        base = altura - 50   # espaço para o nome da categoria embaixo
 
         c.create_text(margem_x, 18, text=f"Total: {total} tarefa(s)",
                       anchor="w", fill=COR_TEXTO, font=(FONTE, 11, "bold"))
@@ -77,7 +87,7 @@ class GraficoStatus(tk.Frame):
         espaco = (largura - 2 * margem_x) / qtd
         largura_barra = min(espaco * 0.6, 120)
 
-        for i, (status, valor) in enumerate(self.contagem.items()):
+        for i, (categoria, valor) in enumerate(self.contagem.items()):
             centro = margem_x + espaco * i + espaco / 2
             altura_barra = (base - topo) * valor / maior
             y_topo = base - altura_barra
@@ -85,16 +95,16 @@ class GraficoStatus(tk.Frame):
             if valor > 0:
                 c.create_rectangle(centro - largura_barra / 2, y_topo,
                                    centro + largura_barra / 2, base,
-                                   fill=CORES_STATUS.get(status, COR_PADRAO_BARRA),
+                                   fill=self.cores.get(categoria, COR_PADRAO_BARRA),
                                    outline="")
 
             # Quantidade acima da barra (aparece "0" também)
             c.create_text(centro, y_topo - 12, text=str(valor),
                           fill=COR_TEXTO, font=(FONTE, 11, "bold"))
 
-            # Nome do status + percentual embaixo
+            # Nome da categoria + percentual embaixo
             percentual = round(valor * 100 / total)
-            c.create_text(centro, base + 16, text=status,
+            c.create_text(centro, base + 16, text=categoria,
                           fill=COR_TEXTO, font=(FONTE, 10))
             c.create_text(centro, base + 34, text=f"{percentual}%",
                           fill=COR_TEXTO_SECUNDARIO, font=(FONTE, 9))

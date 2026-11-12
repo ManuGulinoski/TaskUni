@@ -1,6 +1,6 @@
 from datetime import date
 
-from utils.constantes import STATUS_TODOS
+from utils.constantes import STATUS_TODOS, TIPOS
 
 
 def contar_por_status(tarefas, hoje=None):
@@ -26,5 +26,24 @@ def contar_por_status(tarefas, hoje=None):
         status = tarefa.status_atual(hoje)
         # Um status desconhecido no JSON também entra, para o total bater
         contagem[status] = contagem.get(status, 0) + 1
+
+    return contagem
+
+
+def contar_por_tipo(tarefas):
+    """
+    Conta quantas tarefas existem de cada tipo (US do gráfico por tipo).
+
+    Retorna um dicionário com TODOS os tipos, na ordem de TIPOS,
+    mesmo os que têm 0 tarefas. Ex.:
+        {"Prova": 2, "Trabalho": 1, "Exercício": 0}
+
+    Lista vazia -> todos os tipos com 0.
+    """
+    contagem = {tipo: 0 for tipo in TIPOS}
+
+    for tarefa in tarefas:
+        # Um tipo desconhecido no JSON também entra, para o total bater
+        contagem[tarefa.tipo] = contagem.get(tarefa.tipo, 0) + 1
 
     return contagem
