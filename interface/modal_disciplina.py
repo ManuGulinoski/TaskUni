@@ -1,6 +1,7 @@
-
 import tkinter as tk
 from services.disciplina_service import cadastrar_disciplina
+from interface.componentes import BotaoArredondado, exibir_toast
+from utils.constantes import *
 
 
 class ModalDisciplina:
@@ -10,12 +11,13 @@ class ModalDisciplina:
         self.parent = parent
         self.ao_cadastrar = ao_cadastrar
 
-        self.cor_fonte = "#333333"
-        self.cor_roxa = "#5b21b6"
-        self.cor_campo = "#CCCCCC"
-        self.cor_cancelar = "#F1F1F3"
+        # Cores do tema (utils/constantes.py)
+        self.cor_fonte = COR_TEXTO
+        self.cor_roxa = COR_PRIMARIA
+        self.cor_campo = COR_CAMPO
+        self.cor_cancelar = COR_SECUNDARIA
 
-        self.overlay = tk.Frame(parent, bg="#808080")
+        self.overlay = tk.Frame(parent, bg=COR_OVERLAY)
         self.overlay.place(
             relx=0,
             rely=0,
@@ -25,9 +27,12 @@ class ModalDisciplina:
 
         self.janela = tk.Frame(
             self.overlay,
-            bg="white",
+            bg=COR_SUPERFICIE,
+            highlightthickness=1,
+            highlightbackground=COR_BORDA,
+            highlightcolor=COR_BORDA,
             width=560,
-            height=420
+            height=400
         )
 
         self.janela.place(
@@ -40,10 +45,10 @@ class ModalDisciplina:
 
         tk.Label(
             self.janela,
-            text="Nova disciplina",
-            font=("Arial", 20),
+            text="Nova disciplina ✿",
+            font=FONTE_TITULO,
             fg=self.cor_fonte,
-            bg="white"
+            bg=COR_SUPERFICIE
         ).pack(
             anchor="w",
             padx=35,
@@ -53,9 +58,9 @@ class ModalDisciplina:
         tk.Label(
             self.janela,
             text="Adicione uma disciplina para organizar suas tarefas",
-            font=("Arial", 15),
-            fg="#888888",
-            bg="white"
+            font=FONTE_SUBTITULO,
+            fg=COR_TEXTO_SECUNDARIO,
+            bg=COR_SUPERFICIE
         ).pack(
             anchor="w",
             padx=35
@@ -63,7 +68,7 @@ class ModalDisciplina:
 
         tk.Frame(
             self.janela,
-            bg="#CCCCCC",
+            bg=COR_BORDA,
             height=1
         ).pack(
             fill="x",
@@ -73,7 +78,7 @@ class ModalDisciplina:
 
         formulario = tk.Frame(
             self.janela,
-            bg="white"
+            bg=COR_SUPERFICIE
         )
 
         formulario.pack(
@@ -85,9 +90,9 @@ class ModalDisciplina:
         tk.Label(
             formulario,
             text="Nome da disciplina:",
-            font=("Arial", 11, "bold"),
+            font=FONTE_LABEL,
             fg=self.cor_fonte,
-            bg="white"
+            bg=COR_SUPERFICIE
         ).pack(
             anchor="w",
             pady=(0, 10)
@@ -95,17 +100,20 @@ class ModalDisciplina:
 
         self.entrada_nome = tk.Entry(
             formulario,
-            font=("Arial", 13),
+            font=(FONTE, 12),
             fg=self.cor_fonte,
             bg=self.cor_campo,
             relief="flat",
             bd=0,
-            insertbackground=self.cor_fonte
+            insertbackground=self.cor_fonte,
+            highlightthickness=1,
+            highlightbackground=COR_CAMPO_BORDA,
+            highlightcolor=COR_CAMPO_FOCO
         )
 
         self.entrada_nome.pack(
             fill="x",
-            ipady=15
+            ipady=10
         )
 
         self.entrada_nome.focus_set()
@@ -113,14 +121,14 @@ class ModalDisciplina:
 
         frame_botoes = tk.Frame(
             self.janela,
-            bg="white"
+            bg=COR_SUPERFICIE
         )
 
         frame_botoes.pack(
             side="bottom",
             fill="x",
-            padx=20,
-            pady=35
+            padx=27,
+            pady=30
         )
 
         frame_botoes.columnconfigure(0, weight=1)
@@ -129,8 +137,7 @@ class ModalDisciplina:
         self.criar_botao(
             frame_botoes,
             "Cancelar",
-            self.cor_cancelar,
-            "#777777",
+            "secundario",
             self.fechar,
             coluna=0
         )
@@ -138,37 +145,26 @@ class ModalDisciplina:
         self.criar_botao(
             frame_botoes,
             "Adicionar",
-            self.cor_roxa,
-            "white",
+            "primario",
             self.salvar,
             coluna=1
         )
 
-    def criar_botao(
-        self, parent, texto, cor_fundo,
-        cor_texto, comando, coluna
-    ):
+    def criar_botao(self, parent, texto, tipo, comando, coluna):
 
-        botao = tk.Button(
+        botao = BotaoArredondado(
             parent,
-            text=texto,
-            bg=cor_fundo,
-            fg=cor_texto,
-            font=("Arial", 12, "bold"),
-            relief="flat",
-            bd=0,
-            cursor="hand2",
-            activebackground=cor_fundo,
-            activeforeground=cor_texto,
-            command=comando
+            texto,
+            comando,
+            tipo=tipo,
+            altura=46
         )
 
         botao.grid(
             row=0,
             column=coluna,
             padx=8,
-            sticky="ew",
-            ipady=16
+            sticky="ew"
         )
 
     def fechar(self):
@@ -177,38 +173,7 @@ class ModalDisciplina:
 
     def exibir_toast(self, mensagem, tipo="sucesso"):
 
-        if tipo == "sucesso":
-            cor_fundo = "#2E8B57"
-        else:
-            cor_fundo = "#D9534F"
-
-        toast = tk.Frame(
-            self.parent,
-            bg=cor_fundo,
-            padx=20,
-            pady=15
-        )
-
-        toast.place(
-            relx=1.0,
-            x=-20,
-            y=20,
-            anchor="ne"
-        )
-
-        tk.Label(
-            toast,
-            text=mensagem,
-            bg=cor_fundo,
-            fg="white",
-            font=("Arial", 10, "bold"),
-            wraplength=300,
-            justify="left"
-        ).pack()
-
-        toast.lift()
-
-        self.parent.after(3000, toast.destroy)
+        exibir_toast(self.parent, mensagem, tipo)
 
     def salvar(self):
 

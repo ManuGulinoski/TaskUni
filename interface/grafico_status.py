@@ -1,31 +1,18 @@
 import tkinter as tk
 
+from interface.componentes import retangulo_arredondado
 from utils.constantes import (
-    COR_FUNDO,
-    STATUS_A_FAZER, STATUS_EM_ANDAMENTO, STATUS_CONCLUIDA, STATUS_ATRASADA,
-    TIPO_PROVA, TIPO_TRABALHO, TIPO_EXERCICIO,
+    FONTE, COR_FUNDO, COR_SUPERFICIE, COR_BORDA, COR_TEXTO, COR_TEXTO_SECUNDARIO,
+    COR_GRAFICO_EIXO, COR_GRAFICO_PADRAO,
+    CORES_GRAFICO_STATUS, CORES_GRAFICO_TIPO, MSG_GRAFICO_VAZIO,
 )
 
-FONTE = "Segoe UI"
-COR_TEXTO = "#111827"
-COR_TEXTO_SECUNDARIO = "#6B7280"
-COR_EIXO = "#D1D5DB"
-COR_PADRAO_BARRA = "#9CA3AF"
-
-CORES_STATUS = {
-    STATUS_A_FAZER: "#378ADD",       # azul
-    STATUS_EM_ANDAMENTO: "#EF9F27",  # amarelo
-    STATUS_CONCLUIDA: "#16A34A",     # verde
-    STATUS_ATRASADA: "#DC2626",      # vermelho
-}
-
-CORES_TIPO = {
-    TIPO_PROVA: "#7F77DD",       # roxo
-    TIPO_TRABALHO: "#E06C26",    # laranja
-    TIPO_EXERCICIO: "#0D9488",   # verde-azulado
-}
-
-MSG_SEM_TAREFAS = "Nenhuma tarefa cadastrada para exibir no gráfico."
+# Cores das barras (definidas no tema, em utils/constantes.py)
+CORES_STATUS = CORES_GRAFICO_STATUS
+CORES_TIPO = CORES_GRAFICO_TIPO
+COR_EIXO = COR_GRAFICO_EIXO
+COR_PADRAO_BARRA = COR_GRAFICO_PADRAO
+MSG_SEM_TAREFAS = MSG_GRAFICO_VAZIO
 
 
 class GraficoBarras(tk.Frame):
@@ -45,8 +32,9 @@ class GraficoBarras(tk.Frame):
         self.contagem = {}
         self.cores = cores if cores is not None else CORES_STATUS
 
-        self.canvas = tk.Canvas(self, bg="white", highlightthickness=1,
-                                highlightbackground="#E5E7EB")
+        self.canvas = tk.Canvas(self, bg=COR_SUPERFICIE, highlightthickness=1,
+                                highlightbackground=COR_BORDA,
+                                highlightcolor=COR_BORDA)
         self.canvas.pack(fill="both", expand=True)
 
         # Redesenha quando a janela muda de tamanho
@@ -71,14 +59,15 @@ class GraficoBarras(tk.Frame):
         # Lista vazia: mostra mensagem no lugar das barras
         if total == 0:
             c.create_text(largura / 2, altura / 2, text=MSG_SEM_TAREFAS,
-                          fill=COR_TEXTO_SECUNDARIO, font=(FONTE, 12))
+                          fill=COR_TEXTO_SECUNDARIO, font=(FONTE, 12),
+                          justify="center")
             return
 
         margem_x = 40
         topo = 60        # espaço para o "Total" e o número acima da barra mais alta
         base = altura - 50   # espaço para o nome da categoria embaixo
 
-        c.create_text(margem_x, 18, text=f"Total: {total} tarefa(s)",
+        c.create_text(margem_x, 22, text=f"Total: {total} tarefa(s)",
                       anchor="w", fill=COR_TEXTO, font=(FONTE, 11, "bold"))
         c.create_line(margem_x, base, largura - margem_x, base, fill=COR_EIXO, width=2)
 
@@ -93,10 +82,16 @@ class GraficoBarras(tk.Frame):
             y_topo = base - altura_barra
 
             if valor > 0:
-                c.create_rectangle(centro - largura_barra / 2, y_topo,
-                                   centro + largura_barra / 2, base,
-                                   fill=self.cores.get(categoria, COR_PADRAO_BARRA),
-                                   outline="")
+                cor = self.cores.get(categoria, COR_PADRAO_BARRA)
+                x1 = centro - largura_barra / 2
+                x2 = centro + largura_barra / 2
+                raio = min(12, largura_barra / 2, altura_barra / 2)
+                # Barra com o topo arredondado: retângulo arredondado +
+                # retângulo reto cobrindo os cantos de baixo
+                retangulo_arredondado(c, x1, y_topo, x2, base, raio,
+                                      fill=cor, outline=cor)
+                c.create_rectangle(x1, base - raio, x2, base,
+                                   fill=cor, outline=cor)
 
             # Quantidade acima da barra (aparece "0" também)
             c.create_text(centro, y_topo - 12, text=str(valor),

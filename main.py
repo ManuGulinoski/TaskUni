@@ -1,94 +1,138 @@
-
 import tkinter as tk
-from tkinter import ttk
 import threading
 
+from interface.componentes import BotaoArredondado, aplicar_estilo_ttk
 from interface.modal_disciplina import ModalDisciplina
 from interface.modal_tarefa import ModalTarefa
 from interface.tela_tarefas import TelaTarefas
 from interface.tela_grafico import TelaGrafico
 
 from services.frase_service import buscar_frase
-from utils.constantes import FRASE_RESERVA
+from utils.constantes import (
+    FRASE_RESERVA, TITULO_APP, TAMANHO_JANELA, TAMANHO_MINIMO, FONTE,
+    FONTE_TEXTO, COR_FUNDO, COR_SUPERFICIE, COR_BORDA, COR_PRIMARIA,
+    COR_TEXTO, COR_TEXTO_SECUNDARIO, COR_SUAVE, COR_TEXTO_SUAVE,
+)
 
 
 class App:
     def __init__(self, janela):
         self.janela = janela
 
-        self.janela.title("TaskUni")
-        self.janela.geometry("800x500")
+        self.janela.title(TITULO_APP)
+        self.janela.geometry(TAMANHO_JANELA)
+        self.janela.minsize(*TAMANHO_MINIMO)
+        self.janela.configure(bg=COR_FUNDO)
+
+        # Cores do tema nos Combobox, abas e barras de rolagem
+        aplicar_estilo_ttk(self.janela)
 
         self.tela_tarefas = None
         self.tela_grafico = None
 
         # Frame da Home
-        self.home = tk.Frame(self.janela)
+        self.home = tk.Frame(self.janela, bg=COR_FUNDO)
         self.home.pack(fill="both", expand=True)
 
         self.criar_home()
 
     def criar_home(self):
-        # Menu suspenso
+        # Conteúdo centralizado na tela
+        centro = tk.Frame(self.home, bg=COR_FUNDO)
+        centro.place(relx=0.5, rely=0.45, anchor="center")
+
+        # Título e subtítulo
+        tk.Label(
+            centro,
+            text="✿ TaskUni",
+            font=(FONTE, 32, "bold"),
+            bg=COR_FUNDO,
+            fg=COR_PRIMARIA
+        ).pack()
+
+        tk.Label(
+            centro,
+            text="Organize seus estudos com carinho ♡",
+            font=(FONTE, 12),
+            bg=COR_FUNDO,
+            fg=COR_TEXTO_SECUNDARIO
+        ).pack(pady=(0, 28))
+
+        # Menu suspenso do botão "+ Nova"
         self.menu_nova = tk.Menu(
             self.janela,
-            tearoff=0
+            tearoff=0,
+            bg=COR_SUPERFICIE,
+            fg=COR_TEXTO,
+            activebackground=COR_SUAVE,
+            activeforeground=COR_TEXTO_SUAVE,
+            font=FONTE_TEXTO,
+            bd=0
         )
 
         self.menu_nova.add_command(
-            label="Tarefa",
+            label="  ✎  Tarefa",
             command=self.abrir_modal_tarefa
         )
 
         self.menu_nova.add_command(
-            label="Disciplina",
+            label="  ✿  Disciplina",
             command=self.abrir_modal_disciplina
         )
 
-        # Botão Nova
-        self.botao_nova = ttk.Button(
-            self.home,
-            text="+ Nova",
-            command=self.abrir_menu_nova
+        # Botões principais, lado a lado
+        botoes = tk.Frame(centro, bg=COR_FUNDO)
+        botoes.pack()
+
+        self.botao_nova = BotaoArredondado(
+            botoes,
+            "+ Nova",
+            self.abrir_menu_nova,
+            altura=44,
+            padx=28
         )
+        self.botao_nova.pack(side="left", padx=6)
 
-        self.botao_nova.pack(pady=20)
+        BotaoArredondado(
+            botoes,
+            "Ver tarefas",
+            self.mostrar_tarefas,
+            tipo="suave",
+            altura=44,
+            padx=28
+        ).pack(side="left", padx=6)
 
-        # Botão para acessar a tela de tarefas
-        botao_tarefas = ttk.Button(
-            self.home,
-            text="Ver tarefas",
-            command=self.mostrar_tarefas
-        )
+        BotaoArredondado(
+            botoes,
+            "Ver gráficos",
+            self.mostrar_grafico,
+            tipo="suave",
+            altura=44,
+            padx=28
+        ).pack(side="left", padx=6)
 
-        botao_tarefas.pack(pady=10)
-        # Botão para acessar o gráfico por status
-        ttk.Button(
-            self.home,
-            text="Ver gráfico",
-            command=self.mostrar_grafico
-        ).pack(pady=10)
-
-        # Área da frase motivacional
+        # Card da frase motivacional
         self.frame_frase = tk.Frame(
-            self.home,
-            bg="#F3F4F6",
-            padx=30,
-            pady=20
+            centro,
+            bg=COR_SUPERFICIE,
+            highlightthickness=1,
+            highlightbackground=COR_BORDA,
+            highlightcolor=COR_BORDA,
+            padx=36,
+            pady=22
         )
 
         self.frame_frase.pack(
             fill="x",
-            padx=40,
-            pady=30
+            pady=(40, 0)
         )
 
         self.titulo_frase = tk.Label(
             self.frame_frase,
-            text="Inspire-se!",
-            font=("Segoe UI", 13, "bold"),
-            bg="#F3F4F6",
-            fg="#5b21b6"
+            text="✨ Inspire-se!",
+            font=(FONTE, 13, "bold"),
+            bg=COR_SUPERFICIE,
+            fg=COR_PRIMARIA
         )
 
         self.titulo_frase.pack(pady=(0, 10))
@@ -96,10 +140,10 @@ class App:
         self.label_frase = tk.Label(
             self.frame_frase,
             text=f'"{FRASE_RESERVA[0]}"',
-            font=("Segoe UI", 11),
-            bg="#F3F4F6",
-            fg="#333333",
-            wraplength=650,
+            font=(FONTE, 11),
+            bg=COR_SUPERFICIE,
+            fg=COR_TEXTO,
+            wraplength=560,
             justify="center"
         )
 
@@ -108,9 +152,9 @@ class App:
         self.label_autor = tk.Label(
             self.frame_frase,
             text=f"— {FRASE_RESERVA[1]}",
-            font=("Segoe UI", 10, "italic"),
-            bg="#F3F4F6",
-            fg="#6B7280"
+            font=(FONTE, 10, "italic"),
+            bg=COR_SUPERFICIE,
+            fg=COR_TEXTO_SECUNDARIO
         )
 
         self.label_autor.pack(pady=5)
@@ -156,7 +200,7 @@ class App:
     def abrir_modal_tarefa(self):
         ModalTarefa(
             self.janela,
-            ao_cadastrar=lambda tarefa: self.atualizar_telas()
+            ao_salvar=lambda tarefa: self.atualizar_telas()
         )
 
     # Recarrega as telas já abertas depois de uma alteração nas tarefas
@@ -166,7 +210,7 @@ class App:
         if self.tela_grafico:
             self.tela_grafico.atualizar()
 
-    # Abre a tela do gráfico por status
+    # Abre a tela dos gráficos (por status e por tipo)
     def mostrar_grafico(self):
         self.home.pack_forget()
 

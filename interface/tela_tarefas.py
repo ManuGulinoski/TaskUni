@@ -5,7 +5,10 @@ from interface.card_tarefa import CardTarefa
 from interface.modal_tarefa import ModalTarefa
 from services.tarefa_service import verificar_tarefas_atrasadas
 from services.filtro_service import filtrar_tarefas
-from utils.constantes import * 
+from utils.constantes import *
+from interface.componentes import BotaoArredondado
+
+
 class TelaTarefas(tk.Frame):
     def __init__(self, parent, app=None):
         super().__init__(parent, bg=COR_FUNDO)
@@ -22,33 +25,38 @@ class TelaTarefas(tk.Frame):
         topo.pack(fill="x")
 
         # Botão para voltar à Home
-        ttk.Button(
+        BotaoArredondado(
             topo,
-            text="← Início",
-            command=self.voltar_inicio
-        ).pack(side="left", padx=(0, 15))
+            "← Início",
+            self.voltar_inicio,
+            tipo="secundario"
+        ).pack(side="left", padx=(0, 16))
 
         # Título
         tk.Label(
             topo,
-            text="Tarefas",
+            text="Minhas tarefas ✿",
             bg=COR_FUNDO,
-            font=(FONTE, 18, "bold")
+            fg=COR_TEXTO,
+            font=FONTE_TITULO
         ).pack(side="left")
 
         # Botão para criar tarefa
-        ttk.Button(
+        BotaoArredondado(
             topo,
-            text="+ Criar tarefa",
-            command=self.criar_tarefa
-            ).pack(side="right")
+            "+ Criar tarefa",
+            self.criar_tarefa
+        ).pack(side="right")
 
     # ======================================================================
     # Filtros (disciplina, tipo, status e prioridade)
     # ======================================================================
     def _criar_area_filtros(self):
-        self.area_filtros = tk.Frame(self, bg=COR_FUNDO)
-        self.area_filtros.pack(fill="x", pady=(10, 6))
+        # Filtros dentro de um card branco
+        self.area_filtros = tk.Frame(self, bg=COR_SUPERFICIE,
+                                     highlightthickness=1, highlightbackground=COR_BORDA,
+                                     highlightcolor=COR_BORDA, padx=16, pady=12)
+        self.area_filtros.pack(fill="x", pady=(16, 12))
 
         # Nome da disciplina -> id (preenchido em _atualizar_opcoes_disciplina)
         self.mapa_disciplinas = {}
@@ -59,22 +67,23 @@ class TelaTarefas(tk.Frame):
         self.combo_prioridade = self._criar_combo("Prioridade", [OPCAO_TODAS] + PRIORIDADES, 3)
 
         # Botões na mesma linha dos combos
-        ttk.Button(self.area_filtros, text="Filtrar",
-                   command=self.aplicar_filtros).grid(row=1, column=4, padx=(4, 4), sticky="s")
-        ttk.Button(self.area_filtros, text="Limpar",
-                   command=self.limpar_filtros).grid(row=1, column=5, sticky="s")
+        BotaoArredondado(self.area_filtros, "Filtrar", self.aplicar_filtros,
+                         tipo="suave", altura=32).grid(row=1, column=4, padx=(6, 6), sticky="s")
+        BotaoArredondado(self.area_filtros, "Limpar", self.limpar_filtros,
+                         tipo="secundario", altura=32).grid(row=1, column=5, sticky="s")
 
         # Começa sem filtro nenhum
         self.filtros_aplicados = self._ler_combos()
 
     def _criar_combo(self, titulo, opcoes, coluna):
         """Cria um rótulo + Combobox somente leitura na coluna indicada."""
-        tk.Label(self.area_filtros, text=titulo, bg=COR_FUNDO, fg="#374151",
-                 font=(FONTE, 9, "bold")).grid(row=0, column=coluna, sticky="w", padx=(0, 10))
+        tk.Label(self.area_filtros, text=titulo, bg=COR_SUPERFICIE, fg=COR_TEXTO_LABEL,
+                 font=(FONTE, 9, "bold")).grid(row=0, column=coluna, sticky="w",
+                                                padx=(0, 12), pady=(0, 4))
 
         combo = ttk.Combobox(self.area_filtros, values=opcoes, state="readonly", width=16)
         combo.set(opcoes[0])          # "Todos" / "Todas"
-        combo.grid(row=1, column=coluna, sticky="w", padx=(0, 10))
+        combo.grid(row=1, column=coluna, sticky="w", padx=(0, 12))
         return combo
 
     def _atualizar_opcoes_disciplina(self, disciplinas):
@@ -178,7 +187,7 @@ class TelaTarefas(tk.Frame):
                               ao_editar=self.editar_tarefa,
                               ao_excluir=self.excluir_tarefa,
                               ao_concluir=self.concluir_tarefa)
-            card.pack(fill="x", pady=4)
+            card.pack(fill="x", pady=5, padx=(0, 6))
 
         self.canvas.yview_moveto(0)
 
@@ -187,8 +196,8 @@ class TelaTarefas(tk.Frame):
         return filtrar_tarefas(tarefas, **self.filtros_aplicados)
 
     def _mostrar_mensagem(self, texto):
-        tk.Label(self.lista, text=texto, bg=COR_FUNDO, fg="#6B7280",
-                 font=(FONTE, 11)).pack(pady=40)
+        tk.Label(self.lista, text=texto, bg=COR_FUNDO, fg=COR_TEXTO_MENSAGEM,
+                 font=(FONTE, 12), justify="center").pack(pady=60)
 
     def criar_tarefa(self):
         ModalTarefa(
