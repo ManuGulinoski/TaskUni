@@ -1,14 +1,9 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 
 from interface.card_tarefa import CardTarefa
 from interface.modal_tarefa import ModalTarefa
-
-from services.tarefa_service import (
-    verificar_tarefas_atrasadas,
-    excluir_tarefa as excluir_tarefa_service
-)
-
+from services.tarefa_service import verificar_tarefas_atrasadas
 from services.filtro_service import filtrar_tarefas
 from utils.constantes import *
 
@@ -16,15 +11,11 @@ from utils.constantes import *
 class TelaTarefas(tk.Frame):
 
     def __init__(self, parent, app=None):
-
-        super().__init__(
-            parent,
-            bg=COR_FUNDO
-        )
+        super().__init__(parent, bg=COR_FUNDO)
 
         self.app = app
-        self._toast_atual = None
 
+        self._criar_estilo()
         self._criar_topo()
         self._criar_area_filtros()
         self._criar_lista_rolavel()
@@ -32,76 +23,71 @@ class TelaTarefas(tk.Frame):
         self.atualizar_lista()
 
     # ==========================================================
+    # ESTILOS
+    # ==========================================================
+
+    def _criar_estilo(self):
+        """Configura o estilo dos campos de seleção."""
+
+        estilo = ttk.Style()
+
+        estilo.configure(
+            "Filtros.TCombobox",
+            font=(FONTE, 10),
+            padding=(8, 7)
+        )
+
+    # ==========================================================
     # TOPO
     # ==========================================================
 
     def _criar_topo(self):
 
-        topo = tk.Frame(
-            self,
-            bg=COR_FUNDO
-        )
-
+        topo = tk.Frame(self, bg=COR_FUNDO)
         topo.pack(fill="x")
 
         ttk.Button(
             topo,
             text="← Início",
             command=self.voltar_inicio
-        ).pack(
-            side="left",
-            padx=(0, 15)
-        )
+        ).pack(side="left", padx=(0, 15))
 
         tk.Label(
             topo,
             text="Tarefas",
             bg=COR_FUNDO,
+            fg=COR_TEXTO,
             font=(FONTE, 18, "bold")
         ).pack(side="left")
 
-
-
-
         botao_nova = tk.Button(
-        topo,
-        text="+ Nova tarefa",
-        font=(FONTE, 10, "bold"),
-        bg=COR_BOTAO_PRINCIPAL,
-        fg=COR_TEXTO_BOTAO,
-        activebackground=COR_BOTAO_HOVER,
-        activeforeground=COR_TEXTO_BOTAO,
-        relief="flat",
-        bd=0,
-        highlightthickness=0,
-        cursor="hand2",
-        width=14,
-        height=2,
-        command=self.criar_tarefa
-    )
+            topo,
+            text="+ Criar tarefa",
+            font=(FONTE, 10, "bold"),
+            bg=COR_BOTAO_PRINCIPAL,
+            fg=COR_TEXTO_BOTAO,
+            activebackground=COR_BOTAO_HOVER,
+            activeforeground=COR_TEXTO_BOTAO,
+            relief="flat",
+            bd=0,
+            highlightthickness=0,
+            cursor="hand2",
+            width=14,
+            height=2,
+            command=self.criar_tarefa
+        )
 
-        botao_nova.pack(
-                side="right",
-                padx=5,
-                pady=5
-            )
+        botao_nova.pack(side="right", padx=5, pady=5)
 
         botao_nova.bind(
-                "<Enter>",
-                lambda evento: botao_nova.config(
-                    bg=COR_BOTAO_HOVER
-                )
-            )
+            "<Enter>",
+            lambda evento: botao_nova.config(bg=COR_BOTAO_HOVER)
+        )
 
         botao_nova.bind(
-                "<Leave>",
-                lambda evento: botao_nova.config(
-                    bg=COR_BOTAO_PRINCIPAL
-                )
-            )
-
-
-
+            "<Leave>",
+            lambda evento: botao_nova.config(bg=COR_BOTAO_PRINCIPAL)
+        )
 
     # ==========================================================
     # FILTROS
@@ -109,14 +95,17 @@ class TelaTarefas(tk.Frame):
 
     def _criar_area_filtros(self):
 
+        # Fundo branco envolvendo todos os filtros
         self.area_filtros = tk.Frame(
             self,
-            bg=COR_FUNDO
+            bg="#FFFFFF",
+            padx=18,
+            pady=15
         )
 
         self.area_filtros.pack(
             fill="x",
-            pady=(10, 6)
+            pady=(15, 22)
         )
 
         self.mapa_disciplinas = {}
@@ -145,49 +134,56 @@ class TelaTarefas(tk.Frame):
             3
         )
 
-        ttk.Button(
-            self.area_filtros,
-            text="Filtrar",
-            command=self.aplicar_filtros
-        ).grid(
+        # Botões Filtrar e Limpar
+        botao_filtrar = self._criar_botao_filtro(
+            "Filtrar",
+            self.aplicar_filtros
+        )
+
+        botao_filtrar.grid(
             row=1,
             column=4,
-            padx=(4, 4),
+            padx=(8, 6),
             sticky="s"
         )
 
-        ttk.Button(
-            self.area_filtros,
-            text="Limpar",
-            command=self.limpar_filtros
-        ).grid(
+        botao_limpar = self._criar_botao_filtro(
+            "Limpar",
+            self.limpar_filtros
+        )
+
+        botao_limpar.grid(
             row=1,
             column=5,
+            padx=(4, 0),
             sticky="s"
         )
 
         self.filtros_aplicados = self._ler_combos()
 
     def _criar_combo(self, titulo, opcoes, coluna):
+        """Cria o título e o campo de seleção de cada filtro."""
 
         tk.Label(
             self.area_filtros,
             text=titulo,
-            bg=COR_FUNDO,
-            fg="#374151",
+            bg="#FFFFFF",
+            fg=COR_TEXTO_LABEL,
             font=(FONTE, 9, "bold")
         ).grid(
             row=0,
             column=coluna,
             sticky="w",
-            padx=(0, 10)
+            padx=(0, 12),
+            pady=(0, 6)
         )
 
         combo = ttk.Combobox(
             self.area_filtros,
             values=opcoes,
             state="readonly",
-            width=16
+            width=19,
+            style="Filtros.TCombobox"
         )
 
         combo.set(opcoes[0])
@@ -195,13 +191,52 @@ class TelaTarefas(tk.Frame):
         combo.grid(
             row=1,
             column=coluna,
-            sticky="w",
-            padx=(0, 10)
+            sticky="ew",
+            padx=(0, 12)
         )
 
         return combo
 
+    def _criar_botao_filtro(self, texto, comando):
+        """Cria os botões de filtro com efeito roxo ao passar o mouse."""
+
+        botao = tk.Button(
+            self.area_filtros,
+            text=texto,
+            font=(FONTE, 9, "bold"),
+            bg="#E5E7EB",
+            fg=COR_TEXTO,
+            activebackground=COR_BOTAO_HOVER,
+            activeforeground=COR_TEXTO_BOTAO,
+            relief="flat",
+            bd=0,
+            highlightthickness=0,
+            cursor="hand2",
+            width=10,
+            height=2,
+            command=comando
+        )
+
+        botao.bind(
+            "<Enter>",
+            lambda evento: botao.config(
+                bg=COR_BOTAO_PRINCIPAL,
+                fg=COR_TEXTO_BOTAO
+            )
+        )
+
+        botao.bind(
+            "<Leave>",
+            lambda evento: botao.config(
+                bg="#E5E7EB",
+                fg=COR_TEXTO
+            )
+        )
+
+        return botao
+
     def _atualizar_opcoes_disciplina(self, disciplinas):
+        """Atualiza as disciplinas disponíveis no filtro."""
 
         self.mapa_disciplinas = {
             disciplina.nome: disciplina.id
@@ -213,14 +248,13 @@ class TelaTarefas(tk.Frame):
             key=str.lower
         )
 
-        self.combo_disciplina["values"] = (
-            [OPCAO_TODAS] + nomes
-        )
+        self.combo_disciplina["values"] = [OPCAO_TODAS] + nomes
 
         if self.combo_disciplina.get() not in self.mapa_disciplinas:
             self.combo_disciplina.set(OPCAO_TODAS)
 
     def _ler_combos(self):
+        """Obtém os valores selecionados nos filtros."""
 
         nome_disciplina = self.combo_disciplina.get()
 
@@ -235,11 +269,13 @@ class TelaTarefas(tk.Frame):
         }
 
     def aplicar_filtros(self):
+        """Aplica os filtros selecionados."""
 
         self.filtros_aplicados = self._ler_combos()
         self.atualizar_lista()
 
     def limpar_filtros(self):
+        """Limpa os filtros e exibe todas as tarefas."""
 
         for combo in (
             self.combo_disciplina,
@@ -262,9 +298,11 @@ class TelaTarefas(tk.Frame):
             bg=COR_FUNDO
         )
 
+        # Espaço extra entre os filtros e a primeira linha de cards
         container.pack(
             fill="both",
-            expand=True
+            expand=True,
+            pady=(5, 0)
         )
 
         self.canvas = tk.Canvas(
@@ -297,6 +335,19 @@ class TelaTarefas(tk.Frame):
         self.lista = tk.Frame(
             self.canvas,
             bg=COR_FUNDO
+        )
+
+        # Duas colunas com o mesmo espaço disponível
+        self.lista.grid_columnconfigure(
+            0,
+            weight=1,
+            uniform="colunas"
+        )
+
+        self.lista.grid_columnconfigure(
+            1,
+            weight=1,
+            uniform="colunas"
         )
 
         janela_lista = self.canvas.create_window(
@@ -333,7 +384,6 @@ class TelaTarefas(tk.Frame):
     def _ligar_roda_do_mouse(self, ligar):
 
         if ligar:
-
             self.canvas.bind_all(
                 "<MouseWheel>",
                 self._rolar
@@ -341,22 +391,15 @@ class TelaTarefas(tk.Frame):
 
             self.canvas.bind_all(
                 "<Button-4>",
-                lambda evento: self.canvas.yview_scroll(
-                    -1,
-                    "units"
-                )
+                lambda evento: self.canvas.yview_scroll(-1, "units")
             )
 
             self.canvas.bind_all(
                 "<Button-5>",
-                lambda evento: self.canvas.yview_scroll(
-                    1,
-                    "units"
-                )
+                lambda evento: self.canvas.yview_scroll(1, "units")
             )
 
         else:
-
             for evento in (
                 "<MouseWheel>",
                 "<Button-4>",
@@ -372,10 +415,11 @@ class TelaTarefas(tk.Frame):
         )
 
     # ==========================================================
-    # LISTA DE CARDS
+    # CARDS DE TAREFAS
     # ==========================================================
 
     def atualizar_lista(self):
+        """Limpa e monta novamente os cards de tarefas."""
 
         for widget in self.lista.winfo_children():
             widget.destroy()
@@ -402,9 +446,10 @@ class TelaTarefas(tk.Frame):
         elif not visiveis:
             self._mostrar_mensagem(MSG_SEM_RESULTADO)
 
-        for tarefa in visiveis:
+        # Distribui os cards em duas colunas
+        for indice, tarefa in enumerate(visiveis):
 
-            nome = nomes_disciplinas.get(
+            nome_disciplina = nomes_disciplinas.get(
                 tarefa.disciplina_id,
                 "Disciplina não encontrada"
             )
@@ -412,15 +457,21 @@ class TelaTarefas(tk.Frame):
             card = CardTarefa(
                 self.lista,
                 tarefa,
-                nome,
+                nome_disciplina,
                 ao_editar=self.editar_tarefa,
                 ao_excluir=self.excluir_tarefa,
                 ao_concluir=self.concluir_tarefa
             )
 
-            card.pack(
-                fill="x",
-                pady=4
+            linha = indice // 2
+            coluna = indice % 2
+
+            card.grid(
+                row=linha,
+                column=coluna,
+                sticky="nsew",
+                padx=8,
+                pady=8
             )
 
         self.canvas.yview_moveto(0)
@@ -438,101 +489,17 @@ class TelaTarefas(tk.Frame):
             self.lista,
             text=texto,
             bg=COR_FUNDO,
-            fg="#6B7280",
+            fg=COR_TEXTO_MENSAGEM,
             font=(FONTE, 11)
-        ).pack(pady=40)
-
-    # ==========================================================
-    # US11 - EXCLUIR TAREFA
-    # ==========================================================
-
-    def excluir_tarefa(self, tarefa):
-
-        # 1. Solicita confirmação antes de excluir
-        confirmar = messagebox.askyesno(
-            "Excluir tarefa",
-            f"Tem certeza de que deseja excluir a tarefa "
-            f'"{tarefa.nome}"?',
-            parent=self.winfo_toplevel()
+        ).grid(
+            row=0,
+            column=0,
+            columnspan=2,
+            pady=40
         )
 
-        # 2. Se cancelar, não altera os dados
-        if not confirmar:
-            return
-
-        try:
-
-            # 3. Chama o serviço responsável pela exclusão
-            excluir_tarefa_service(tarefa.id)
-
-            # 4. Atualiza os cards da tela
-            self.atualizar_lista()
-
-            # 5. Exibe mensagem de sucesso
-            self.exibir_toast(
-                "Tarefa excluída com sucesso!",
-                sucesso=True
-            )
-
-        except Exception as erro:
-
-            print(f"Erro ao excluir tarefa: {erro}")
-
-            self.exibir_toast(
-                "Não foi possível excluir a tarefa.",
-                sucesso=False
-            )
-
     # ==========================================================
-    # TOAST DE SUCESSO E ERRO
-    # ==========================================================
-
-    def exibir_toast(self, mensagem, sucesso=True):
-
-        # Remove o toast anterior, se existir
-        if (
-            self._toast_atual is not None
-            and self._toast_atual.winfo_exists()
-        ):
-            self._toast_atual.destroy()
-
-        cor_fundo = "#16A34A" if sucesso else "#DC2626"
-
-        toast = tk.Label(
-            self,
-            text=mensagem,
-            bg=cor_fundo,
-            fg="#FFFFFF",
-            font=(FONTE, 10, "bold"),
-            padx=18,
-            pady=12
-        )
-
-        toast.place(
-            relx=1.0,
-            x=-20,
-            y=20,
-            anchor="ne"
-        )
-
-        self._toast_atual = toast
-
-        # Remove automaticamente depois de 3 segundos
-        self.after(
-            3000,
-            lambda: self._remover_toast(toast)
-        )
-
-    def _remover_toast(self, toast):
-
-        if toast.winfo_exists():
-            toast.destroy()
-
-        if self._toast_atual == toast:
-            self._toast_atual = None
-
-    # ==========================================================
-    # OUTRAS AÇÕES
+    # AÇÕES DOS CARDS
     # ==========================================================
 
     def criar_tarefa(self):
@@ -549,6 +516,10 @@ class TelaTarefas(tk.Frame):
             tarefa=tarefa,
             ao_salvar=lambda tarefa: self.atualizar_lista()
         )
+
+    def excluir_tarefa(self, tarefa):
+
+        print(f"[US17] Excluir: {tarefa.nome}")
 
     def concluir_tarefa(self, tarefa):
 
