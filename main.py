@@ -7,6 +7,7 @@ from interface.card_big_number import CardBigNumber
 from interface.modal_disciplina import ModalDisciplina
 from interface.modal_tarefa import ModalTarefa
 from interface.tela_tarefas import TelaTarefas
+from interface.tela_grafico import TelaGrafico
 
 from services.estatisticas_service import obter_estatisticas
 from services.frase_service import buscar_frase
@@ -31,6 +32,7 @@ class App:
         self.janela.configure(bg=COR_FUNDO)
 
         self.tela_tarefas = None
+        self.tela_grafico = None
         self.botoes_menu = {}
         self.fila_frase = Queue()
 
@@ -76,7 +78,8 @@ class App:
         opcoes = [
             ("Home", self.mostrar_home),
             ("Tarefas", self.mostrar_tarefas),
-        ]
+            ("Gráficos", self.mostrar_grafico),
+            ]
 
         for nome, acao in opcoes:
             botao = tk.Button(
@@ -148,8 +151,15 @@ class App:
             bg=COR_FUNDO
         )
         self.area_cards.pack(fill="x", pady=20)
+        
+        ttk.Button(
+            self.home,
+            text="Ver gráfico",
+            command=self.mostrar_grafico
+        ).pack(pady=10)
 
         # Área da frase externa.
+
         self.frame_frase = tk.Frame(
             self.home,
             bg=COR_FUNDO,
@@ -234,21 +244,34 @@ class App:
 
     def abrir_modal_tarefa(self):
         ModalTarefa(
-            self.janela,
-            ao_salvar=self.atualizar_apos_cadastro
+        self.janela,
+        ao_salvar=self.atualizar_apos_cadastro
         )
 
     def atualizar_apos_cadastro(self, tarefa):
+        self.atualizar_telas()
+
+    def atualizar_telas(self):
         self.atualizar_home()
 
         if self.tela_tarefas is not None:
             self.tela_tarefas.atualizar_lista()
 
-    def mostrar_home(self):
+        if self.tela_grafico is not None:
+            self.tela_grafico.atualizar()
+
+    def ocultar_telas(self):
+        self.home.pack_forget()
+
         if self.tela_tarefas is not None:
             self.tela_tarefas.pack_forget()
 
+        if self.tela_grafico is not None:
+            self.tela_grafico.pack_forget()
+
+    def mostrar_home(self):
         self.atualizar_home()
+        self.ocultar_telas()
 
         self.home.pack(
             fill="both",
@@ -260,7 +283,6 @@ class App:
         self.destacar_menu("Home")
 
     def mostrar_tarefas(self):
-    
         if self.tela_tarefas is None:
             self.tela_tarefas = TelaTarefas(
                 self.conteudo,
@@ -269,7 +291,7 @@ class App:
         else:
             self.tela_tarefas.atualizar_lista()
 
-        self.home.pack_forget()
+        self.ocultar_telas()
 
         self.tela_tarefas.pack(
             fill="both",
@@ -279,6 +301,26 @@ class App:
         )
 
         self.destacar_menu("Tarefas")
+
+    def mostrar_grafico(self):
+        if self.tela_grafico is None:
+            self.tela_grafico = TelaGrafico(
+                self.conteudo,
+                app=self
+            )
+        else:
+            self.tela_grafico.atualizar()
+
+        self.ocultar_telas()
+
+        self.tela_grafico.pack(
+            fill="both",
+            expand=True,
+            padx=20,
+            pady=20
+        )
+
+        self.destacar_menu("Gráficos")
 
     def atualizar_home(self):
         for widget in self.area_cards.winfo_children():
