@@ -1,11 +1,18 @@
-import tkinter as tk
-import threading
 
+import tkinter as tk
+from tkinter import ttk
+import threading
+from queue import Queue, Empty
+
+from interface.card_big_number import CardBigNumber
 from interface.modal_disciplina import ModalDisciplina
 from interface.modal_tarefa import ModalTarefa
 from interface.tela_tarefas import TelaTarefas
+from interface.tela_grafico import TelaGrafico
 
+from services.estatisticas_service import obter_estatisticas
 from services.frase_service import buscar_frase
+
 from utils.constantes import *
 
 
@@ -14,29 +21,102 @@ class App:
     def __init__(self, janela):
         self.janela = janela
 
-        self.janela.title(TITULO_APP)
+        self.janela.title("TaskUni")
         self.janela.geometry(TAMANHO_JANELA)
+        self.janela.minsize(1100, 700)
         self.janela.configure(bg=COR_FUNDO)
 
         self.tela_tarefas = None
+        self.tela_grafico = None
+        self.botoes_menu = {}
+        self.fila_frase = Queue()
 
-        # Frame principal da Home
-        self.home = tk.Frame(
+        self.menu_lateral = tk.Frame(
+            self.janela,
+            bg=COR_MENU_LATERAL,
+            width=LARGURA_MENU
+        )
+
+        self.menu_lateral.pack(side="left", fill="y")
+        self.menu_lateral.pack_propagate(False)
+
+        self.conteudo = tk.Frame(
             self.janela,
             bg=COR_FUNDO
         )
 
-        self.home.pack(
+        self.conteudo.pack(
+            side="left",
             fill="both",
             expand=True
         )
 
-        self.criar_home()
+        self.home = tk.Frame(
+            self.conteudo,
+            bg=COR_FUNDO
+        )
 
+        self.criar_menu()
+        self.criar_home()
+        self.mostrar_home()
+        self.carregar_frase()
+
+    def criar_menu(self):
+
+        tk.Label(
+            self.menu_lateral,
+            text="TaskUni",
+            bg=COR_MENU_LATERAL,
+            fg=COR_MENU_TEXTO,
+            font=("Segoe UI", 22, "bold")
+        ).pack(pady=(30, 35))
+
+        opcoes = [
+            ("Home", self.mostrar_home),
+            ("Tarefas", self.mostrar_tarefas),
+            ("Gráficos", self.mostrar_grafico),
+        ]
+
+        for nome, acao in opcoes:
+
+            botao = tk.Button(
+                self.menu_lateral,
+                text=nome,
+                command=acao,
+                bg=COR_MENU_LATERAL,
+                fg=COR_MENU_TEXTO,
+                activebackground="#374151",
+                activeforeground=COR_MENU_TEXTO,
+                font=("Segoe UI", 12),
+                relief="flat",
+                borderwidth=0,
+                anchor="w",
+                padx=20,
+                pady=12,
+                cursor="hand2"
+            )
+
+            botao.pack(fill="x", padx=10, pady=4)
+
+            self.botoes_menu[nome] = botao
+
+    def destacar_menu(self, selecionado):
+
+        for nome, botao in self.botoes_menu.items():
+
+            ativo = nome == selecionado
+
+            botao.configure(
+                bg="#374151" if ativo else COR_MENU_LATERAL,
+                font=(
+                    "Segoe UI",
+                    12,
+                    "bold" if ativo else "normal"
+                )
+            )
 
     def criar_home(self):
 
-        # Barra superior
         self.topo = tk.Frame(
             self.home,
             bg=COR_FUNDO
@@ -48,7 +128,14 @@ class App:
             pady=20
         )
 
-        # Menu suspenso de criação
+        tk.Label(
+            self.topo,
+            text="Home",
+            bg=COR_FUNDO,
+            fg="#111827",
+            font=("Segoe UI", 18, "bold")
+        ).pack(side="left")
+
         self.menu_nova = tk.Menu(
             self.janela,
             tearoff=0
@@ -64,11 +151,10 @@ class App:
             command=self.abrir_modal_disciplina
         )
 
-        # Botão Nova no canto superior direito
-        self.botao_nova = self.criar_botao_novo(
+        self.botao_nova = ttk.Button(
             self.topo,
-            texto="+ Nova",
-            comando=self.abrir_menu_nova
+            text="+ Nova",
+            command=self.abrir_menu_nova
         )
 
         self.botao_nova.pack(
@@ -77,7 +163,6 @@ class App:
             pady=5
         )
 
-        # Conteúdo central da Home
         conteudo = tk.Frame(
             self.home,
             bg=COR_FUNDO
@@ -87,22 +172,30 @@ class App:
             fill="both",
             expand=True,
             padx=40,
-            pady=30
+            pady=20
         )
 
-        # Título da Home
         tk.Label(
             conteudo,
             text="Bem-vindo ao TaskUni!",
             font=(FONTE, 22, "bold"),
             bg=COR_FUNDO,
             fg="#111827"
-        ).pack(pady=(30, 10))
+        ).pack(pady=(20, 10))
 
-        # Botão para acessar as tarefas
+        self.area_cards = tk.Frame(
+            conteudo,
+            bg=COR_FUNDO
+        )
+
+        self.area_cards.pack(
+            fill="x",
+            pady=20
+        )
+
         tk.Button(
             conteudo,
-            text="Ver tarefas",
+            text="Ver gráfico",
             font=(FONTE, 11, "bold"),
             bg=COR_BOTAO_PRINCIPAL,
             fg=COR_TEXTO_BOTAO,
@@ -113,10 +206,9 @@ class App:
             cursor="hand2",
             width=18,
             height=2,
-            command=self.mostrar_tarefas
-        ).pack(pady=15)
+            command=self.mostrar_grafico
+        ).pack(pady=10)
 
-        # Área da frase motivacional
         self.frame_frase = tk.Frame(
             conteudo,
             bg="#FFFFFF",
@@ -126,8 +218,8 @@ class App:
 
         self.frame_frase.pack(
             fill="x",
-            padx=40,
-            pady=40
+            padx=10,
+            pady=30
         )
 
         tk.Label(
@@ -138,7 +230,6 @@ class App:
             fg=COR_BOTAO_PRINCIPAL
         ).pack(pady=(0, 12))
 
-        # Frase reserva exibida inicialmente
         self.label_frase = tk.Label(
             self.frame_frase,
             text=f'"{FRASE_RESERVA[0]}"',
@@ -161,45 +252,7 @@ class App:
 
         self.label_autor.pack(pady=5)
 
-        # Busca uma frase da API sem bloquear a interface
-        self.carregar_frase()
-
-    def criar_botao_novo(self, parent, texto, comando):
-
-        botao = tk.Button(
-            parent,
-            text=texto,
-            font=(FONTE, 10, "bold"),
-            bg=COR_BOTAO_PRINCIPAL,
-            fg=COR_TEXTO_BOTAO,
-            activebackground=COR_BOTAO_HOVER,
-            activeforeground=COR_TEXTO_BOTAO,
-            relief="flat",
-            bd=0,
-            highlightthickness=0,
-            cursor="hand2",
-            width=14,
-            height=2,
-            command=comando
-        )
-
-        # Efeito ao passar o mouse
-        botao.bind(
-            "<Enter>",
-            lambda evento: botao.config(
-                bg=COR_BOTAO_HOVER
-            )
-        )
-
-        botao.bind(
-            "<Leave>",
-            lambda evento: botao.config(
-                bg=COR_BOTAO_PRINCIPAL
-            )
-        )
-
-        return botao
-
+        self.atualizar_home()
 
     def abrir_menu_nova(self):
 
@@ -209,20 +262,70 @@ class App:
                 self.botao_nova.winfo_rooty()
                 + self.botao_nova.winfo_height()
             )
+
         finally:
             self.menu_nova.grab_release()
 
     def abrir_modal_disciplina(self):
+
         ModalDisciplina(self.janela)
+
     def abrir_modal_tarefa(self):
 
         ModalTarefa(
             self.janela,
-            ao_salvar=lambda tarefa: (
-                self.tela_tarefas.atualizar_lista()
-                if self.tela_tarefas else None
-            )
+            ao_salvar=self.atualizar_apos_cadastro
         )
+
+    def atualizar_apos_cadastro(self, tarefa):
+
+        self.atualizar_telas()
+
+    def atualizar_telas(self):
+
+        self.atualizar_home()
+
+        if self.tela_tarefas is not None:
+            self.tela_tarefas.atualizar_lista()
+
+        if self.tela_grafico is not None:
+            self.tela_grafico.atualizar()
+
+    def atualizar_home(self):
+
+        for widget in self.area_cards.winfo_children():
+            widget.destroy()
+
+        estatisticas = obter_estatisticas()
+
+        cartoes = [
+            ("Total de tarefas", estatisticas["total"]),
+            ("Concluídas", estatisticas["concluidas"]),
+            ("Pendentes", estatisticas["pendentes"]),
+            ("Atrasadas", estatisticas["atrasadas"]),
+        ]
+
+        for coluna, (titulo, numero) in enumerate(cartoes):
+
+            self.area_cards.columnconfigure(
+                coluna,
+                weight=1,
+                uniform="cards"
+            )
+
+            card = CardBigNumber(
+                self.area_cards,
+                titulo,
+                numero
+            )
+
+            card.grid(
+                row=0,
+                column=coluna,
+                sticky="nsew",
+                padx=5
+            )
+
     def carregar_frase(self):
 
         threading.Thread(
@@ -230,48 +333,84 @@ class App:
             daemon=True
         ).start()
 
+        self.janela.after(
+            100,
+            self._verificar_frase
+        )
+
     def _buscar_frase(self):
 
         try:
             frase, autor = buscar_frase()
 
+        except Exception:
+            frase, autor = FRASE_RESERVA
+
+        self.fila_frase.put((frase, autor))
+
+    def _verificar_frase(self):
+
+        try:
+            frase, autor = self.fila_frase.get_nowait()
+
+        except Empty:
+
             self.janela.after(
-                0,
-                lambda: self._atualizar_frase(frase, autor)
+                100,
+                self._verificar_frase
             )
 
-        except Exception:
-            # Mantém a frase reserva caso ocorra algum erro
-            pass
+            return
+
+        self._atualizar_frase(frase, autor)
 
     def _atualizar_frase(self, frase, autor):
 
-        self.label_frase.config(
+        self.label_frase.configure(
             text=f'"{frase}"'
         )
 
-        self.label_autor.config(
+        self.label_autor.configure(
             text=f"— {autor}"
         )
 
-    # ==========================================================
-    # NAVEGAÇÃO
-    # ==========================================================
-
-    def mostrar_tarefas(self):
+    def ocultar_telas(self):
 
         self.home.pack_forget()
+
+        if self.tela_tarefas is not None:
+            self.tela_tarefas.pack_forget()
+
+        if self.tela_grafico is not None:
+            self.tela_grafico.pack_forget()
+
+    def mostrar_home(self):
+
+        self.ocultar_telas()
+        self.atualizar_home()
+
+        self.home.pack(
+            fill="both",
+            expand=True,
+            padx=20,
+            pady=20
+        )
+
+        self.destacar_menu("Home")
+
+    def mostrar_tarefas(self):
 
         if self.tela_tarefas is None:
 
             self.tela_tarefas = TelaTarefas(
-                self.janela,
+                self.conteudo,
                 app=self
             )
 
         else:
-            # Atualiza tarefas e disciplinas ao abrir a tela
             self.tela_tarefas.atualizar_lista()
+
+        self.ocultar_telas()
 
         self.tela_tarefas.pack(
             fill="both",
@@ -280,20 +419,31 @@ class App:
             pady=20
         )
 
-    def mostrar_home(self):
+        self.destacar_menu("Tarefas")
 
-        if self.tela_tarefas:
-            self.tela_tarefas.pack_forget()
+    def mostrar_grafico(self):
 
-        self.home.pack(
+        if self.tela_grafico is None:
+
+            self.tela_grafico = TelaGrafico(
+                self.conteudo,
+                app=self
+            )
+
+        else:
+            self.tela_grafico.atualizar()
+
+        self.ocultar_telas()
+
+        self.tela_grafico.pack(
             fill="both",
-            expand=True
+            expand=True,
+            padx=20,
+            pady=20
         )
 
+        self.destacar_menu("Gráficos")
 
-# ==============================================================
-# EXECUÇÃO
-# ==============================================================
 
 if __name__ == "__main__":
 
