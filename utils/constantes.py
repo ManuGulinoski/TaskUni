@@ -1,4 +1,3 @@
-
 import os
 
 
@@ -84,56 +83,145 @@ FILTROS_PRAZO = [
 OPCAO_TODOS = "Todos"
 OPCAO_TODAS = "Todas"
 
-# Cores das tarefas
+# Cores das tarefas (faixa lateral do card) - tons pastel
+# Os NOMES ficam salvos no JSON; só os tons mudaram.
 CORES_TAREFA = {
     "Branco": "#FFFFFF",
-    "Azul": "#378ADD",
-    "Verde": "#639922",
-    "Amarelo": "#EF9F27",
-    "Vermelho": "#E24B4A",
-    "Roxo": "#7F77DD",
-    "Laranja": "#E06C26"
+    "Azul": "#8EC1F0",
+    "Verde": "#9FD8A8",
+    "Amarelo": "#FFD77A",
+    "Vermelho": "#FF9A9A",
+    "Roxo": "#B9A3EE",
+    "Laranja": "#FFB38A"
 }
 
 
 # ============================================================
-# INTERFACE GRÁFICA
+# INTERFACE GRÁFICA - TEMA "FOFO" (tons pastel)
+# Todas as cores e fontes das telas ficam AQUI.
+# Para mudar o visual do app inteiro, basta mexer nesta seção.
 # ============================================================
-
-# Menu lateral
-COR_MENU_LATERAL = "#1F2937"
-COR_MENU_TEXTO = "#FFFFFF"
-LARGURA_MENU = 180
-
-# Cores gerais
-COR_FUNDO = "#F3F4F6"
 
 # Janela principal
 TAMANHO_JANELA = "1100x700"
+TAMANHO_MINIMO = (1100, 700)
 TITULO_APP = "Gerenciador de Tarefas Acadêmicas"
 
-# ---------- Cards de tarefas ----------
-
+# ---------- Fontes ----------
 FONTE = "Segoe UI"
+FONTE_TITULO = (FONTE, 20, "bold")
+FONTE_SUBTITULO = (FONTE, 11)
+FONTE_TEXTO = (FONTE, 10)
+FONTE_LABEL = (FONTE, 10, "bold")
+FONTE_BOTAO = (FONTE, 10, "bold")
+FONTE_PILULA = (FONTE, 9, "bold")
 
-COR_CARD = "white"
-COR_BORDA = "#E5E7EB"
+# ---------- Cores gerais ----------
+COR_FUNDO = "#FFF8F3"            # creme bem clarinho
+COR_SUPERFICIE = "#FFFFFF"       # cards, modais, gráficos
+COR_BORDA = "#EFE6F5"            # bordas suaves
+COR_OVERLAY = "#E9E0F2"          # fundo atrás dos modais
 
-COR_TEXTO = "#111827"
-COR_TEXTO_SECUNDARIO = "#6B7280"
+COR_TEXTO = "#4A4058"            # roxo-acinzentado escuro (mais suave que preto)
+COR_TEXTO_SECUNDARIO = "#766A8A"
+COR_TEXTO_LABEL = "#5B4A7A"
+COR_TEXTO_MENSAGEM = "#766A8A"
 
-COR_NEUTRA = "#D1D5DB"
-COR_ATRASADA = "#DC2626"
-COR_CONCLUIDA = "#16A34A"
+# Botão principal (lilás)
+COR_PRIMARIA = "#7C5CC4"
+COR_PRIMARIA_HOVER = "#6A4BB3"
+COR_TEXTO_PRIMARIA = "#FFFFFF"
 
+# Botão suave (lilás clarinho, ex.: Filtrar, Ver detalhes)
+COR_SUAVE = "#EFE7FA"
+COR_SUAVE_HOVER = "#E3D7F6"
+COR_TEXTO_SUAVE = "#6346B0"
+
+# Botão secundário (ex.: Cancelar, Início, Limpar)
+COR_SECUNDARIA = "#F4F0F8"
+COR_SECUNDARIA_HOVER = "#E9E2F1"
+COR_TEXTO_SECUNDARIA = "#5B4A7A"
+
+# Botão de perigo (ex.: Excluir)
+COR_PERIGO = "#C2414B"
+COR_PERIGO_HOVER = "#A8333D"
+COR_TEXTO_PERIGO = "#FFFFFF"
+
+# Nomes usados pela equipe nos botões (apontam para o tema)
+COR_BOTAO_PRINCIPAL = COR_PRIMARIA
+COR_BOTAO_HOVER = COR_PRIMARIA_HOVER
+COR_TEXTO_BOTAO = COR_TEXTO_PRIMARIA
+
+# Campos de formulário
+COR_CAMPO = "#FAF7FD"
+COR_CAMPO_BORDA = "#E3D8F0"
+COR_CAMPO_FOCO = COR_PRIMARIA
+COR_PLACEHOLDER = "#9C92AC"
+
+# ---------- Menu lateral ----------
+COR_MENU_LATERAL = COR_SUPERFICIE     # menu branquinho
+COR_MENU_TEXTO = "#6E6283"
+COR_MENU_TEXTO_ATIVO = COR_TEXTO_SUAVE
+COR_MENU_ATIVO = COR_SUAVE            # item selecionado (pílula lilás)
+COR_MENU_HOVER = COR_SECUNDARIA
+COR_MENU_LOGO = COR_PRIMARIA
+LARGURA_MENU = 200
+
+# ---------- Cards de números (Home) ----------
+# título -> (cor do número, cor da bolinha de destaque)
+CORES_BIG_NUMBER = {
+    "Total de tarefas": ("#6346B0", "#C3B1F0"),
+    "Concluídas": ("#1F6B52", "#9ED9BF"),
+    "Pendentes": ("#1F5F8B", "#A7C7E7"),
+    "Atrasadas": ("#B3261E", "#FF9E9E"),
+}
+
+# ---------- Cards de tarefas ----------
+COR_CARD = COR_SUPERFICIE
+COR_NEUTRA = "#E9E2F1"           # faixa quando a cor é "Branco"
+COR_ATRASADA = "#B3261E"
+COR_CONCLUIDA = "#1F6B52"
 CORES_PADRAO = ("Branco", "Padrão")
 
-# ---------- Tela de tarefas ----------
-COR_TEXTO_LABEL = "#374151"
-COR_TEXTO_MENSAGEM = "#6B7280"
+# Pílulas de status: status -> (fundo, texto)
+CORES_PILULA_STATUS = {
+    "A fazer": ("#DCEBFA", "#1F5F8B"),       # azul bebê
+    "Em andamento": ("#FFEBD2", "#8A5300"),  # pêssego
+    "Concluída": ("#D7F3E7", "#1F6B52"),     # menta
+    "Atrasada": ("#FFE1E1", "#B3261E"),      # rosa-coral
+}
+COR_PILULA_PADRAO = ("#F3EDFA", "#4A4058")   # prioridade e status desconhecido
 
-MSG_SEM_TAREFAS = "Nenhuma tarefa cadastrada."
-MSG_SEM_RESULTADO = "Nenhuma tarefa encontrada para os filtros selecionados."
+# Ícones dos cards (editar, excluir, concluir)
+COR_ICONE_EDITAR = "#7C5CC4"
+COR_ICONE_EXCLUIR = "#E0707A"
+COR_ICONE_CONCLUIR = "#3FA586"
+
+# ---------- Gráficos (barras pastel) ----------
+CORES_GRAFICO_STATUS = {
+    "A fazer": "#A7C7E7",
+    "Em andamento": "#FFCF99",
+    "Concluída": "#9ED9BF",
+    "Atrasada": "#FF9E9E",
+}
+CORES_GRAFICO_TIPO = {
+    "Prova": "#C3B1F0",
+    "Trabalho": "#FFB5C8",
+    "Exercício": "#A8E0E0",
+}
+COR_GRAFICO_EIXO = "#E3D8F0"
+COR_GRAFICO_PADRAO = "#D6CCE4"
+
+# ---------- Notificações (toasts): tipo -> (fundo, texto, borda) ----------
+CORES_TOAST = {
+    "sucesso": ("#D7F3E7", "#1F6B52", "#A9E3CB"),
+    "erro": ("#FFE1E1", "#B3261E", "#FFC2C2"),
+}
+
+# ---------- Mensagens simpáticas ----------
+MSG_SEM_TAREFAS = "Nenhuma tarefa por aqui ainda ✿\nClique em “+ Criar tarefa” para começar!"
+MSG_SEM_RESULTADO = "Nenhuma tarefa com esses filtros ♡\nTente mudar ou limpar os filtros."
+MSG_GRAFICO_VAZIO = "Ainda não há tarefas para mostrar ✿\nCadastre uma tarefa e volte aqui!"
 
 # ============================================================
 # API E FRASES
@@ -145,9 +233,3 @@ FRASE_RESERVA = (
 )
 
 URL_ZENQUOTES = "https://zenquotes.io/api/random"
-
-# ---------- Botões principais ----------
-
-COR_BOTAO_PRINCIPAL = "#5B21B6"
-COR_BOTAO_HOVER = "#4C1D95"
-COR_TEXTO_BOTAO = "#FFFFFF"

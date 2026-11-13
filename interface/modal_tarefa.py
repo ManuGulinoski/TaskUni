@@ -1,4 +1,3 @@
-
 import tkinter as tk
 from tkinter import ttk
 
@@ -6,6 +5,9 @@ from repositorio import armazenamento
 from services.tarefa_service import *
 
 from utils.constantes import *
+from interface.componentes import BotaoArredondado, exibir_toast
+
+
 class ModalTarefa:
 
     def __init__(self, parent, tarefa=None, ao_salvar=None):
@@ -13,12 +15,13 @@ class ModalTarefa:
         self.tarefa = tarefa
         self.ao_salvar = ao_salvar
         self.modo_edicao = tarefa is not None
-        self.cor_fundo = "#808080"
-        self.cor_fonte = "#333333"
-        self.cor_campo = "#CCCCCC"
-        self.cor_roxo = "#5b21b6"
-        self.cor_cinza = "#F1F1F3"
-        self.cor_placeholder = "#888888"
+        # Cores do tema (utils/constantes.py)
+        self.cor_fundo = COR_OVERLAY
+        self.cor_fonte = COR_TEXTO
+        self.cor_campo = COR_CAMPO
+        self.cor_roxo = COR_PRIMARIA
+        self.cor_cinza = COR_SECUNDARIA
+        self.cor_placeholder = COR_PLACEHOLDER
         self.placeholder_nome = "Ex.: Prova de Algoritmos"
         self.placeholder_prazo = "DD/MM/AAAA"
         self.placeholder_descricao = "Adicione uma descrição (opcional)"
@@ -37,9 +40,12 @@ class ModalTarefa:
 
         self.janela = tk.Frame(
             self.overlay,
-            bg="white",
+            bg=COR_SUPERFICIE,
+            highlightthickness=1,
+            highlightbackground=COR_BORDA,
+            highlightcolor=COR_BORDA,
             width=650,
-            height=680
+            height=600
         )
 
         self.janela.place(
@@ -66,13 +72,13 @@ class ModalTarefa:
         tk.Label(
             self.janela,
             text="Editar tarefa" if self.modo_edicao else "Nova tarefa",
-            font=("Arial", 20, "bold"),
-            bg="white",
+            font=(FONTE, 20, "bold"),
+            bg=COR_SUPERFICIE,
             fg=self.cor_fonte
         ).pack(
             anchor="w",
             padx=35,
-            pady=(25, 5)
+            pady=(24, 2)
         )
 
         tk.Label(
@@ -81,9 +87,9 @@ class ModalTarefa:
                   if self.modo_edicao
                   else "Adicione uma tarefa para organizar suas atividades"
 ),
-            font=("Arial", 10),
-            bg="white",
-            fg="#888888"
+            font=(FONTE, 10),
+            bg=COR_SUPERFICIE,
+            fg=COR_TEXTO_SECUNDARIO
         ).pack(
             anchor="w",
             padx=35
@@ -91,17 +97,17 @@ class ModalTarefa:
 
         tk.Frame(
             self.janela,
-            bg="#CCCCCC",
+            bg=COR_BORDA,
             height=1
         ).pack(
             fill="x",
             padx=35,
-            pady=(20, 15)
+            pady=(16, 12)
         )
 
         formulario = tk.Frame(
             self.janela,
-            bg="white"
+            bg=COR_SUPERFICIE
         )
 
         formulario.pack(
@@ -115,12 +121,15 @@ class ModalTarefa:
         self.criar_label(formulario, "Nome da tarefa *", 0, 0)
         self.entrada_nome = tk.Entry(
             formulario,
-            font=("Arial", 12),
+            font=(FONTE, 12),
             fg=self.cor_fonte,
             bg=self.cor_campo,
             relief="flat",
             bd=0,
-            insertbackground=self.cor_fonte
+            insertbackground=self.cor_fonte,
+            highlightthickness=1,
+            highlightbackground=COR_CAMPO_BORDA,
+            highlightcolor=COR_CAMPO_FOCO
         )
 
         self.entrada_nome.grid(
@@ -129,7 +138,7 @@ class ModalTarefa:
             columnspan=2,
             sticky="ew",
             ipady=8,
-            pady=(5, 12)
+            pady=(4, 10)
         )
 
         self.adicionar_placeholder(
@@ -142,7 +151,7 @@ class ModalTarefa:
             formulario,
             values=TIPOS,
             state="readonly",
-            font=("Arial", 11)
+            font=(FONTE, 11)
         )
 
         self.combo_tipo.grid(
@@ -151,7 +160,7 @@ class ModalTarefa:
             sticky="ew",
             ipady=5,
             padx=(0, 10),
-            pady=(5, 12)
+            pady=(4, 10)
         )
 
         self.criar_label(formulario, "Disciplina *", 2, 1)
@@ -159,7 +168,7 @@ class ModalTarefa:
             formulario,
             values=list(self.mapa_disciplinas.keys()),
             state="readonly",
-            font=("Arial", 11)
+            font=(FONTE, 11)
         )
 
         self.combo_disciplina.grid(
@@ -168,18 +177,21 @@ class ModalTarefa:
             sticky="ew",
             ipady=5,
             padx=(10, 0),
-            pady=(5, 12)
+            pady=(4, 10)
         )
 
         self.criar_label(formulario, "Prazo (DD/MM/AAAA) *", 4, 0)
         self.entrada_prazo = tk.Entry(
             formulario,
-            font=("Arial", 12),
+            font=(FONTE, 12),
             fg=self.cor_fonte,
             bg=self.cor_campo,
             relief="flat",
             bd=0,
-            insertbackground=self.cor_fonte
+            insertbackground=self.cor_fonte,
+            highlightthickness=1,
+            highlightbackground=COR_CAMPO_BORDA,
+            highlightcolor=COR_CAMPO_FOCO
         )
 
         self.entrada_prazo.grid(
@@ -188,7 +200,7 @@ class ModalTarefa:
             sticky="ew",
             ipady=8,
             padx=(0, 10),
-            pady=(5, 12)
+            pady=(4, 10)
         )
 
         self.adicionar_placeholder(
@@ -199,12 +211,15 @@ class ModalTarefa:
         self.criar_label(formulario, "Descrição", 6, 0)
         self.entrada_descricao = tk.Entry(
             formulario,
-            font=("Arial", 12),
+            font=(FONTE, 12),
             fg=self.cor_fonte,
             bg=self.cor_campo,
             relief="flat",
             bd=0,
-            insertbackground=self.cor_fonte
+            insertbackground=self.cor_fonte,
+            highlightthickness=1,
+            highlightbackground=COR_CAMPO_BORDA,
+            highlightcolor=COR_CAMPO_FOCO
         )
 
         self.entrada_descricao.grid(
@@ -213,7 +228,7 @@ class ModalTarefa:
             columnspan=2,
             sticky="ew",
             ipady=8,
-            pady=(5, 12)
+            pady=(4, 10)
         )
 
         self.adicionar_placeholder(
@@ -226,7 +241,7 @@ class ModalTarefa:
             formulario,
             values=STATUS_SELECIONAVEIS,
             state="readonly",
-            font=("Arial", 11)
+            font=(FONTE, 11)
         )
 
         self.combo_status.grid(
@@ -235,7 +250,7 @@ class ModalTarefa:
             sticky="ew",
             ipady=5,
             padx=(0, 10),
-            pady=(5, 12)
+            pady=(4, 10)
         )
 
         self.criar_label(formulario, "Cor", 8, 1)
@@ -243,7 +258,7 @@ class ModalTarefa:
             formulario,
             values=list(CORES_TAREFA.keys()),
             state="readonly",
-            font=("Arial", 11)
+            font=(FONTE, 11)
         )
 
         self.combo_cor.grid(
@@ -252,7 +267,7 @@ class ModalTarefa:
             sticky="ew",
             ipady=5,
             padx=(10, 0),
-            pady=(5, 12)
+            pady=(4, 10)
         )
 
         self.combo_cor.set("Branco")
@@ -260,49 +275,34 @@ class ModalTarefa:
 
         botoes = tk.Frame(
             self.janela,
-            bg="white"
+            bg=COR_SUPERFICIE
         )
 
         botoes.pack(
-            pady=(35, 20)
+            pady=(22, 20)
         )
 
-        tk.Button(
+        BotaoArredondado(
             botoes,
-            text="Cancelar",
-            font=("Arial", 11, "bold"),
-            bg=self.cor_cinza,
-            fg="#777777",
-            activebackground="#E5E5E5",
-            activeforeground="#777777",
-            relief="flat",
-            bd=0,
-            cursor="hand2",
-            command=self.fechar
+            "Cancelar",
+            self.fechar,
+            tipo="secundario",
+            altura=42,
+            padx=28
         ).pack(
             side="left",
-            ipadx=20,
-            ipady=10,
-            padx=5
+            padx=6
         )
 
-        tk.Button(
+        BotaoArredondado(
             botoes,
-            text="Salvar alterações" if self.modo_edicao else "Adicionar",
-            font=("Arial", 11, "bold"),
-            bg=self.cor_roxo,
-            fg="white",
-            activebackground="#4c1d95",
-            activeforeground="white",
-            relief="flat",
-            bd=0,
-            cursor="hand2",
-            command=self.salvar
+            "Salvar alterações" if self.modo_edicao else "Adicionar",
+            self.salvar,
+            altura=42,
+            padx=28
         ).pack(
             side="left",
-            ipadx=20,
-            ipady=10,
-            padx=5
+            padx=6
         )
 
         if self.modo_edicao:
@@ -335,8 +335,8 @@ class ModalTarefa:
         tk.Label(
             parent,
             text=texto,
-            font=("Arial", 10, "bold"),
-            bg="white",
+            font=(FONTE, 10, "bold"),
+            bg=COR_SUPERFICIE,
             fg=self.cor_fonte
         ).grid(
             row=linha,
@@ -458,35 +458,4 @@ class ModalTarefa:
         self.overlay.destroy()
 
     def exibir_toast(self, mensagem, tipo):
-
-        cor = "#2E8B57" if tipo == "sucesso" else "#D9534F"
-
-        toast = tk.Frame(
-            self.parent,
-            bg=cor
-        )
-
-        toast.place(
-            relx=1.0,
-            x=-20,
-            y=20,
-            anchor="ne"
-        )
-
-        tk.Label(
-            toast,
-            text=mensagem,
-            font=("Arial", 10, "bold"),
-            bg=cor,
-            fg="white",
-            wraplength=300,
-            justify="left"
-        ).pack(
-            padx=20,
-            pady=15
-        )
-
-        self.parent.after(
-            3000,
-            toast.destroy
-        )
+        exibir_toast(self.parent, mensagem, tipo)

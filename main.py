@@ -1,17 +1,20 @@
-
 import tkinter as tk
 from tkinter import ttk
 import threading
 from queue import Queue, Empty
 
 from interface.card_big_number import CardBigNumber
+from interface.componentes import BotaoArredondado, aplicar_estilo_ttk
+from interface.graficos import GraficoColunas, GraficoPizza
 from interface.modal_disciplina import ModalDisciplina
 from interface.modal_tarefa import ModalTarefa
 from interface.tela_tarefas import TelaTarefas
 from interface.tela_grafico import TelaGrafico
 
+from repositorio import armazenamento
 from services.estatisticas_service import obter_estatisticas
 from services.frase_service import buscar_frase
+from services.grafico_service import contar_por_status, contar_por_tipo
 
 from utils.constantes import *
 
@@ -23,8 +26,11 @@ class App:
 
         self.janela.title("TaskUni")
         self.janela.geometry(TAMANHO_JANELA)
-        self.janela.minsize(1100, 700)
+        self.janela.minsize(*TAMANHO_MINIMO)
         self.janela.configure(bg=COR_FUNDO)
+
+        # Cores do tema nos Combobox, abas e barras de rolagem
+        aplicar_estilo_ttk(self.janela)
 
         self.tela_tarefas = None
         self.tela_grafico = None
@@ -39,6 +45,13 @@ class App:
 
         self.menu_lateral.pack(side="left", fill="y")
         self.menu_lateral.pack_propagate(False)
+
+        # Linha fininha separando o menu do conteúdo
+        tk.Frame(
+            self.janela,
+            bg=COR_BORDA,
+            width=1
+        ).pack(side="left", fill="y")
 
         self.conteudo = tk.Frame(
             self.janela,
@@ -61,15 +74,19 @@ class App:
         self.mostrar_home()
         self.carregar_frase()
 
+    # ==========================================================
+    # MENU LATERAL
+    # ==========================================================
+
     def criar_menu(self):
 
         tk.Label(
             self.menu_lateral,
-            text="TaskUni",
+            text="✿ TaskUni",
             bg=COR_MENU_LATERAL,
-            fg=COR_MENU_TEXTO,
-            font=("Segoe UI", 22, "bold")
-        ).pack(pady=(30, 35))
+            fg=COR_MENU_LOGO,
+            font=(FONTE, 20, "bold")
+        ).pack(pady=(30, 30))
 
         opcoes = [
             ("Home", self.mostrar_home),
@@ -79,26 +96,28 @@ class App:
 
         for nome, acao in opcoes:
 
-            botao = tk.Button(
+            botao = BotaoArredondado(
                 self.menu_lateral,
-                text=nome,
-                command=acao,
-                bg=COR_MENU_LATERAL,
-                fg=COR_MENU_TEXTO,
-                activebackground="#374151",
-                activeforeground=COR_MENU_TEXTO,
-                font=("Segoe UI", 12),
-                relief="flat",
-                borderwidth=0,
-                anchor="w",
-                padx=20,
-                pady=12,
-                cursor="hand2"
+                nome,
+                acao,
+                tipo="menu",
+                altura=42,
+                fonte=(FONTE, 11),
+                alinhar="left",
+                raio=12
             )
 
-            botao.pack(fill="x", padx=10, pady=4)
+            botao.pack(fill="x", padx=14, pady=3)
 
             self.botoes_menu[nome] = botao
+
+        tk.Label(
+            self.menu_lateral,
+            text="Bons estudos! ♡",
+            bg=COR_MENU_LATERAL,
+            fg=COR_TEXTO_SECUNDARIO,
+            font=(FONTE, 9)
+        ).pack(side="bottom", pady=20)
 
     def destacar_menu(self, selecionado):
 
@@ -106,17 +125,18 @@ class App:
 
             ativo = nome == selecionado
 
-            botao.configure(
-                bg="#374151" if ativo else COR_MENU_LATERAL,
-                font=(
-                    "Segoe UI",
-                    12,
-                    "bold" if ativo else "normal"
-                )
+            botao.definir_tipo(
+                "menu_ativo" if ativo else "menu",
+                fonte=(FONTE, 11, "bold" if ativo else "normal")
             )
+
+    # ==========================================================
+    # HOME
+    # ==========================================================
 
     def criar_home(self):
 
+        # ---------- Topo: boas-vindas + botão "+ Nova" ----------
         self.topo = tk.Frame(
             self.home,
             bg=COR_FUNDO
@@ -124,135 +144,203 @@ class App:
 
         self.topo.pack(
             fill="x",
-            padx=25,
-            pady=20
+            padx=10,
+            pady=(0, 16)
         )
 
+        textos = tk.Frame(self.topo, bg=COR_FUNDO)
+        textos.pack(side="left")
+
         tk.Label(
-            self.topo,
-            text="Home",
+            textos,
+            text="Bem-vindo ao TaskUni! ✿",
             bg=COR_FUNDO,
-            fg="#111827",
-            font=("Segoe UI", 18, "bold")
-        ).pack(side="left")
+            fg=COR_TEXTO,
+            font=FONTE_TITULO
+        ).pack(anchor="w")
+
+        tk.Label(
+            textos,
+            text="Veja como estão suas tarefas ♡",
+            bg=COR_FUNDO,
+            fg=COR_TEXTO_SECUNDARIO,
+            font=FONTE_SUBTITULO
+        ).pack(anchor="w")
 
         self.menu_nova = tk.Menu(
             self.janela,
-            tearoff=0
+            tearoff=0,
+            bg=COR_SUPERFICIE,
+            fg=COR_TEXTO,
+            activebackground=COR_SUAVE,
+            activeforeground=COR_TEXTO_SUAVE,
+            font=FONTE_TEXTO,
+            bd=0
         )
 
         self.menu_nova.add_command(
-            label="Tarefa",
+            label="  ✎  Tarefa",
             command=self.abrir_modal_tarefa
         )
 
         self.menu_nova.add_command(
-            label="Disciplina",
+            label="  ✿  Disciplina",
             command=self.abrir_modal_disciplina
         )
 
-        self.botao_nova = ttk.Button(
+        self.botao_nova = BotaoArredondado(
             self.topo,
-            text="+ Nova",
-            command=self.abrir_menu_nova
+            "+ Nova",
+            self.abrir_menu_nova,
+            altura=42,
+            padx=26
         )
 
-        self.botao_nova.pack(
-            side="right",
-            padx=5,
-            pady=5
-        )
+        self.botao_nova.pack(side="right")
 
-        conteudo = tk.Frame(
-            self.home,
-            bg=COR_FUNDO
-        )
-
-        conteudo.pack(
-            fill="both",
-            expand=True,
-            padx=40,
-            pady=20
-        )
-
-        tk.Label(
-            conteudo,
-            text="Bem-vindo ao TaskUni!",
-            font=(FONTE, 22, "bold"),
-            bg=COR_FUNDO,
-            fg="#111827"
-        ).pack(pady=(20, 10))
-
+        # ---------- Cards de números ----------
         self.area_cards = tk.Frame(
-            conteudo,
+            self.home,
             bg=COR_FUNDO
         )
 
         self.area_cards.pack(
             fill="x",
-            pady=20
+            padx=5,
+            pady=(0, 14)
         )
 
-        tk.Button(
-            conteudo,
-            text="Ver gráfico",
-            font=(FONTE, 11, "bold"),
-            bg=COR_BOTAO_PRINCIPAL,
-            fg=COR_TEXTO_BOTAO,
-            activebackground=COR_BOTAO_HOVER,
-            activeforeground=COR_TEXTO_BOTAO,
-            relief="flat",
-            bd=0,
-            cursor="hand2",
-            width=18,
-            height=2,
-            command=self.mostrar_grafico
-        ).pack(pady=10)
-
+        # ---------- Frase motivacional (fica embaixo) ----------
         self.frame_frase = tk.Frame(
-            conteudo,
-            bg="#FFFFFF",
-            padx=30,
-            pady=25
+            self.home,
+            bg=COR_SUPERFICIE,
+            highlightthickness=1,
+            highlightbackground=COR_BORDA,
+            highlightcolor=COR_BORDA,
+            padx=24,
+            pady=14
         )
 
         self.frame_frase.pack(
+            side="bottom",
             fill="x",
             padx=10,
-            pady=30
+            pady=(14, 0)
         )
 
         tk.Label(
             self.frame_frase,
-            text="Inspire-se!",
-            font=(FONTE, 14, "bold"),
-            bg="#FFFFFF",
-            fg=COR_BOTAO_PRINCIPAL
-        ).pack(pady=(0, 12))
+            text="✨ Inspire-se!",
+            font=(FONTE, 12, "bold"),
+            bg=COR_SUPERFICIE,
+            fg=COR_PRIMARIA
+        ).pack()
 
         self.label_frase = tk.Label(
             self.frame_frase,
             text=f'"{FRASE_RESERVA[0]}"',
-            font=(FONTE, 12),
-            bg="#FFFFFF",
-            fg="#333333",
+            font=(FONTE, 11),
+            bg=COR_SUPERFICIE,
+            fg=COR_TEXTO,
             wraplength=750,
             justify="center"
         )
 
-        self.label_frase.pack(pady=5)
+        self.label_frase.pack(pady=(6, 2))
 
         self.label_autor = tk.Label(
             self.frame_frase,
             text=f"— {FRASE_RESERVA[1]}",
             font=(FONTE, 10, "italic"),
-            bg="#FFFFFF",
-            fg="#6B7280"
+            bg=COR_SUPERFICIE,
+            fg=COR_TEXTO_SECUNDARIO
         )
 
-        self.label_autor.pack(pady=5)
+        self.label_autor.pack()
 
-        self.atualizar_home()
+        # ---------- Gráficos (ocupam o espaço do meio) ----------
+        area_graficos = tk.Frame(
+            self.home,
+            bg=COR_FUNDO
+        )
+
+        area_graficos.pack(
+            fill="both",
+            expand=True,
+            padx=5
+        )
+
+        area_graficos.columnconfigure(0, weight=1, uniform="graficos")
+        area_graficos.columnconfigure(1, weight=1, uniform="graficos")
+        area_graficos.rowconfigure(0, weight=1)
+
+        # Colunas para status e pizza para tipo (biblioteca matplotlib)
+        self.grafico_status_home = self._criar_card_grafico(
+            area_graficos,
+            "Tarefas por status",
+            GraficoColunas,
+            CORES_GRAFICO_STATUS,
+            coluna=0
+        )
+
+        self.grafico_tipo_home = self._criar_card_grafico(
+            area_graficos,
+            "Tarefas por tipo",
+            GraficoPizza,
+            CORES_GRAFICO_TIPO,
+            coluna=1
+        )
+
+    def _criar_card_grafico(self, parent, titulo, classe_grafico, cores, coluna):
+        """Card branco com título, link "Ver detalhes" e um gráfico compacto."""
+
+        card = tk.Frame(
+            parent,
+            bg=COR_SUPERFICIE,
+            highlightthickness=1,
+            highlightbackground=COR_BORDA,
+            highlightcolor=COR_BORDA,
+            padx=14,
+            pady=10
+        )
+
+        card.grid(
+            row=0,
+            column=coluna,
+            sticky="nsew",
+            padx=5
+        )
+
+        cabecalho = tk.Frame(card, bg=COR_SUPERFICIE)
+        cabecalho.pack(fill="x")
+
+        tk.Label(
+            cabecalho,
+            text=titulo,
+            bg=COR_SUPERFICIE,
+            fg=COR_TEXTO,
+            font=(FONTE, 11, "bold")
+        ).pack(side="left")
+
+        BotaoArredondado(
+            cabecalho,
+            "Ver detalhes →",
+            self.mostrar_grafico,
+            tipo="suave",
+            altura=28,
+            padx=12,
+            fonte=(FONTE, 9, "bold")
+        ).pack(side="right")
+
+        grafico = classe_grafico(
+            card,
+            cores=cores,
+            compacto=True
+        )
+
+        grafico.pack(fill="both", expand=True, pady=(6, 0))
+
+        return grafico
 
     def abrir_menu_nova(self):
 
@@ -292,6 +380,7 @@ class App:
             self.tela_grafico.atualizar()
 
     def atualizar_home(self):
+        """Atualiza os cards de números e os gráficos da Home."""
 
         for widget in self.area_cards.winfo_children():
             widget.destroy()
@@ -325,6 +414,12 @@ class App:
                 sticky="nsew",
                 padx=5
             )
+
+        # Gráficos da Home
+        _, tarefas = armazenamento.carregar()
+
+        self.grafico_status_home.atualizar(contar_por_status(tarefas))
+        self.grafico_tipo_home.atualizar(contar_por_tipo(tarefas))
 
     def carregar_frase(self):
 

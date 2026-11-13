@@ -2,6 +2,7 @@ import tkinter as tk
 
 from utils.constantes import *
 from utils.icones import criar_icones
+from interface.componentes import Pilula
 
 
 def cor_da_faixa(cor):
@@ -41,6 +42,7 @@ class CardTarefa(tk.Frame):
             parent,
             bg=COR_CARD,
             highlightbackground=COR_BORDA,
+            highlightcolor=COR_BORDA,
             highlightthickness=1
         )
 
@@ -54,7 +56,7 @@ class CardTarefa(tk.Frame):
         faixa = tk.Frame(
             self,
             bg=cor_da_faixa(tarefa.cor),
-            width=5
+            width=7
         )
 
         faixa.grid(
@@ -73,8 +75,8 @@ class CardTarefa(tk.Frame):
             row=0,
             column=1,
             sticky="ew",
-            padx=(10, 5),
-            pady=10
+            padx=(14, 5),
+            pady=12
         )
 
         info.columnconfigure(0, weight=1)
@@ -117,7 +119,7 @@ class CardTarefa(tk.Frame):
         self.label_detalhes.pack(
             anchor="w",
             fill="x",
-            pady=(4, 4)
+            pady=(4, 8)
         )
 
         # Status e prioridade
@@ -132,39 +134,25 @@ class CardTarefa(tk.Frame):
         )
 
         status = status_exibido(tarefa)
+        fundo, texto = CORES_PILULA_STATUS.get(status, COR_PILULA_PADRAO)
 
-        if status == STATUS_ATRASADA:
-            cor_status = COR_ATRASADA
-            peso = "bold"
-
-        elif status == STATUS_CONCLUIDA:
-            cor_status = COR_CONCLUIDA
-            peso = "normal"
-
-        else:
-            cor_status = COR_TEXTO
-            peso = "normal"
-
-        tk.Label(
+        Pilula(
             linha_status,
-            text=f"Status: {status}",
-            bg=COR_CARD,
-            fg=cor_status,
-            font=(FONTE, 9, peso)
+            status,
+            fundo,
+            texto
         ).pack(
             side="left"
         )
 
         prioridade = prioridade_exibida(tarefa)
 
-        tk.Label(
+        Pilula(
             linha_status,
-            text=f"  ·  Prioridade: {prioridade}",
-            bg=COR_CARD,
-            fg=COR_TEXTO,
-            font=(FONTE, 9)
+            f"Prioridade: {prioridade}"
         ).pack(
-            side="left"
+            side="left",
+            padx=(6, 0)
         )
 
         # Botões de ação
@@ -217,16 +205,32 @@ class CardTarefa(tk.Frame):
 
     def _botao(self, parent, icone, dica, comando):
 
-        return tk.Button(
+        botao = tk.Button(
             parent,
             image=icone,
             command=comando,
             relief="flat",
             bd=0,
+            width=30,
+            height=30,
             bg=COR_CARD,
-            activebackground="#F3F4F6",
+            activebackground=COR_SUAVE,
             disabledforeground=COR_NEUTRA,
             highlightthickness=0,
             cursor="hand2",
             name=dica.lower()
         )
+
+        # Fundo lilás clarinho ao passar o mouse
+        botao.bind(
+            "<Enter>",
+            lambda e: botao.config(bg=COR_SUAVE)
+            if str(botao["state"]) != "disabled" else None
+        )
+
+        botao.bind(
+            "<Leave>",
+            lambda e: botao.config(bg=COR_CARD)
+        )
+
+        return botao
