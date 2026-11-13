@@ -3,7 +3,12 @@ from tkinter import ttk
 
 from interface.card_tarefa import CardTarefa
 from interface.modal_tarefa import ModalTarefa
-from services.tarefa_service import verificar_tarefas_atrasadas
+from interface.modal_confirmacao import ModalConfirmacao
+from interface.componentes import BotaoArredondado, exibir_toast
+from services.tarefa_service import (
+    verificar_tarefas_atrasadas,
+    excluir_tarefa as remover_tarefa
+)
 from services.filtro_service import filtrar_tarefas
 from utils.constantes import *
 
@@ -46,48 +51,27 @@ class TelaTarefas(tk.Frame):
         topo = tk.Frame(self, bg=COR_FUNDO)
         topo.pack(fill="x")
 
-        ttk.Button(
+        BotaoArredondado(
             topo,
-            text="← Início",
-            command=self.voltar_inicio
-        ).pack(side="left", padx=(0, 15))
+            "← Início",
+            self.voltar_inicio,
+            tipo="secundario"
+        ).pack(side="left", padx=(0, 16))
 
         tk.Label(
             topo,
-            text="Tarefas",
+            text="Minhas tarefas ✿",
             bg=COR_FUNDO,
             fg=COR_TEXTO,
-            font=(FONTE, 18, "bold")
+            font=FONTE_TITULO
         ).pack(side="left")
 
-        botao_nova = tk.Button(
+        BotaoArredondado(
             topo,
-            text="+ Criar tarefa",
-            font=(FONTE, 10, "bold"),
-            bg=COR_BOTAO_PRINCIPAL,
-            fg=COR_TEXTO_BOTAO,
-            activebackground=COR_BOTAO_HOVER,
-            activeforeground=COR_TEXTO_BOTAO,
-            relief="flat",
-            bd=0,
-            highlightthickness=0,
-            cursor="hand2",
-            width=14,
-            height=2,
-            command=self.criar_tarefa
-        )
-
-        botao_nova.pack(side="right", padx=5, pady=5)
-
-        botao_nova.bind(
-            "<Enter>",
-            lambda evento: botao_nova.config(bg=COR_BOTAO_HOVER)
-        )
-
-        botao_nova.bind(
-            "<Leave>",
-            lambda evento: botao_nova.config(bg=COR_BOTAO_PRINCIPAL)
-        )
+            "+ Criar tarefa",
+            self.criar_tarefa,
+            altura=40
+        ).pack(side="right", padx=5)
 
     # ==========================================================
     # FILTROS
@@ -98,9 +82,12 @@ class TelaTarefas(tk.Frame):
         # Fundo branco envolvendo todos os filtros
         self.area_filtros = tk.Frame(
             self,
-            bg="#FFFFFF",
+            bg=COR_SUPERFICIE,
+            highlightthickness=1,
+            highlightbackground=COR_BORDA,
+            highlightcolor=COR_BORDA,
             padx=18,
-            pady=15
+            pady=14
         )
 
         self.area_filtros.pack(
@@ -137,7 +124,8 @@ class TelaTarefas(tk.Frame):
         # Botões Filtrar e Limpar
         botao_filtrar = self._criar_botao_filtro(
             "Filtrar",
-            self.aplicar_filtros
+            self.aplicar_filtros,
+            tipo="suave"
         )
 
         botao_filtrar.grid(
@@ -149,7 +137,8 @@ class TelaTarefas(tk.Frame):
 
         botao_limpar = self._criar_botao_filtro(
             "Limpar",
-            self.limpar_filtros
+            self.limpar_filtros,
+            tipo="secundario"
         )
 
         botao_limpar.grid(
@@ -167,7 +156,7 @@ class TelaTarefas(tk.Frame):
         tk.Label(
             self.area_filtros,
             text=titulo,
-            bg="#FFFFFF",
+            bg=COR_SUPERFICIE,
             fg=COR_TEXTO_LABEL,
             font=(FONTE, 9, "bold")
         ).grid(
@@ -182,7 +171,7 @@ class TelaTarefas(tk.Frame):
             self.area_filtros,
             values=opcoes,
             state="readonly",
-            width=19,
+            width=12,
             style="Filtros.TCombobox"
         )
 
@@ -197,43 +186,17 @@ class TelaTarefas(tk.Frame):
 
         return combo
 
-    def _criar_botao_filtro(self, texto, comando):
-        """Cria os botões de filtro com efeito roxo ao passar o mouse."""
+    def _criar_botao_filtro(self, texto, comando, tipo="suave"):
+        """Cria os botões arredondados de filtro (Filtrar e Limpar)."""
 
-        botao = tk.Button(
+        return BotaoArredondado(
             self.area_filtros,
-            text=texto,
-            font=(FONTE, 9, "bold"),
-            bg="#E5E7EB",
-            fg=COR_TEXTO,
-            activebackground=COR_BOTAO_HOVER,
-            activeforeground=COR_TEXTO_BOTAO,
-            relief="flat",
-            bd=0,
-            highlightthickness=0,
-            cursor="hand2",
-            width=10,
-            height=2,
-            command=comando
+            texto,
+            comando,
+            tipo=tipo,
+            altura=34,
+            padx=22
         )
-
-        botao.bind(
-            "<Enter>",
-            lambda evento: botao.config(
-                bg=COR_BOTAO_PRINCIPAL,
-                fg=COR_TEXTO_BOTAO
-            )
-        )
-
-        botao.bind(
-            "<Leave>",
-            lambda evento: botao.config(
-                bg="#E5E7EB",
-                fg=COR_TEXTO
-            )
-        )
-
-        return botao
 
     def _atualizar_opcoes_disciplina(self, disciplinas):
         """Atualiza as disciplinas disponíveis no filtro."""
@@ -490,12 +453,13 @@ class TelaTarefas(tk.Frame):
             text=texto,
             bg=COR_FUNDO,
             fg=COR_TEXTO_MENSAGEM,
-            font=(FONTE, 11)
+            font=(FONTE, 12),
+            justify="center"
         ).grid(
             row=0,
             column=0,
             columnspan=2,
-            pady=40
+            pady=60
         )
 
     # ==========================================================
@@ -518,8 +482,46 @@ class TelaTarefas(tk.Frame):
         )
 
     def excluir_tarefa(self, tarefa):
+        """US11 - Pede confirmação antes de excluir a tarefa."""
 
-        print(f"[US17] Excluir: {tarefa.nome}")
+        ModalConfirmacao(
+            self,
+            titulo="Excluir tarefa",
+            mensagem=(
+                f"Tem certeza que deseja excluir a tarefa \"{tarefa.nome}\"?\n"
+                "Essa ação não pode ser desfeita."
+            ),
+            texto_confirmar="Excluir",
+            ao_confirmar=lambda: self._confirmar_exclusao(tarefa)
+        )
+
+    def _confirmar_exclusao(self, tarefa):
+        """Remove a tarefa do JSON e atualiza as telas."""
+
+        try:
+            remover_tarefa(tarefa.id)
+
+        except ValueError as erro:
+            # Ex.: a tarefa já tinha sido apagada
+            self.exibir_toast(str(erro), "erro")
+            self.atualizar_lista()
+            return
+
+        # Atualiza lista, cards da Home e gráficos de uma vez
+        if self.app:
+            self.app.atualizar_telas()
+        else:
+            self.atualizar_lista()
+
+        self.exibir_toast(
+            f"Tarefa \"{tarefa.nome}\" excluída com sucesso!",
+            "sucesso"
+        )
+
+    def exibir_toast(self, mensagem, tipo):
+        """Notificação no canto superior direito (some em 3 segundos)."""
+
+        exibir_toast(self, mensagem, tipo)
 
     def concluir_tarefa(self, tarefa):
 
