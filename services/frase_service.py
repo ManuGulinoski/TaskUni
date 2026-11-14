@@ -1,4 +1,3 @@
-
 import requests
 
 from utils.constantes import FRASE_RESERVA, URL_ZENQUOTES
@@ -24,7 +23,11 @@ def buscar_frase():
         if not frase or not autor:
             return FRASE_RESERVA
 
+        # Mensagem de limite de requisições da API, não é uma frase de verdade
+        if autor == "zenquotes.io":
+            return FRASE_RESERVA
+
         return frase, autor
 
-    except (requests.RequestException, ValueError, TypeError, KeyError):
+    except (requests.RequestException, ValueError, TypeError, KeyError, AttributeError):
         return FRASE_RESERVA

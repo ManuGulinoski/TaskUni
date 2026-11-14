@@ -77,16 +77,6 @@
       "cor": "Branco"
     },
     {
-      "id": "7c1d7cf8-6df6-4008-9f9f-ea9e7138bc00",
-      "nome": "teste de interface",
-      "tipo": "Trabalho",
-      "prazo": "2029-05-20",
-      "disciplina_id": "110a66ba-d753-4552-b5ed-d164d6b467ae",
-      "status": "A fazer",
-      "descricao": "",
-      "cor": "Branco"
-    },
-    {
       "id": "e07df0c6-9d3f-4c63-a143-7e6e9dee773e",
       "nome": "matematica",
       "tipo": "Exercício",
@@ -107,21 +97,11 @@
       "cor": "Branco"
     },
     {
-      "id": "a18abd8c-28a8-4a9c-a58a-32a1fbf47e7c",
-      "nome": "WIOEÇFHÍOFHE",
-      "tipo": "Trabalho",
-      "prazo": "2026-11-08",
-      "disciplina_id": "0a38637a-16a2-401c-a595-cdf883ffe3aa",
-      "status": "Atrasada",
-      "descricao": "",
-      "cor": "Verde"
-    },
-    {
       "id": "a9de1b67-98c9-4db8-93c0-50ec3213c287",
-      "nome": "apresentacao",
+      "nome": "teste de notificação",
       "tipo": "Trabalho",
       "prazo": "2026-11-10",
-      "disciplina_id": "eac9af83-c59a-4994-8e8d-294c127883e2",
+      "disciplina_id": "e45d209a-4c54-4ab5-9dcf-037cc2856397",
       "status": "Atrasada",
       "descricao": "",
       "cor": "Roxo"

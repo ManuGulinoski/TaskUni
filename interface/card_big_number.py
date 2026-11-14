@@ -1,6 +1,14 @@
 import tkinter as tk
 
 from utils.constantes import *
+from utils.icones import obter_icone_card
+
+ICONES_BIG_NUMBER = {
+    "Total de tarefas": "clipboard-list",
+    "Concluídas": "circle-check",
+    "Pendentes": "hourglass-half",
+    "Atrasadas": "triangle-exclamation",
+}
 
 
 class CardBigNumber(tk.Frame):
@@ -26,14 +34,17 @@ class CardBigNumber(tk.Frame):
         cor_numero = cor_numero or cor_padrao[0]
         cor_destaque = cor_destaque or cor_padrao[1]
 
-        # Linha do título com uma bolinha colorida
+        # Linha do título com o ícone colorido
         linha = tk.Frame(self, bg=COR_SUPERFICIE)
         linha.pack(anchor="w")
 
-        bolinha = tk.Canvas(linha, width=10, height=10, bg=COR_SUPERFICIE,
-                            highlightthickness=0)
-        bolinha.create_oval(1, 1, 9, 9, fill=cor_destaque, outline=cor_destaque)
-        bolinha.pack(side="left", padx=(0, 8))
+        nome_icone = ICONES_BIG_NUMBER.get(titulo, "circle")
+
+        tk.Label(
+            linha,
+            image=obter_icone_card(nome_icone, cor_destaque),
+            bg=COR_SUPERFICIE
+        ).pack(side="left", padx=(0, 8))
 
         self.titulo = tk.Label(
             linha,

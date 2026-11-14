@@ -1,27 +1,9 @@
-"""
-Componentes visuais reutilizáveis do tema (só Tkinter, sem bibliotecas extras).
-
-- retangulo_arredondado: desenha um retângulo com cantos arredondados num Canvas
-- BotaoArredondado: botão em formato de "pílula", com hover
-- Pilula: etiqueta colorida arredondada (status, prioridade)
-- exibir_toast: notificação no canto da tela
-- aplicar_estilo_ttk: deixa Combobox, Notebook e Scrollbar com as cores do tema
-"""
 import tkinter as tk
 from tkinter import ttk
 from tkinter import font as tkfont
 
-from utils.constantes import (
-    FONTE, FONTE_BOTAO, FONTE_PILULA, FONTE_TEXTO,
-    COR_FUNDO, COR_SUPERFICIE, COR_BORDA, COR_TEXTO, COR_TEXTO_SECUNDARIO,
-    COR_PRIMARIA, COR_PRIMARIA_HOVER, COR_TEXTO_PRIMARIA,
-    COR_SUAVE, COR_SUAVE_HOVER, COR_TEXTO_SUAVE,
-    COR_SECUNDARIA, COR_SECUNDARIA_HOVER, COR_TEXTO_SECUNDARIA,
-    COR_PERIGO, COR_PERIGO_HOVER, COR_TEXTO_PERIGO,
-    COR_MENU_LATERAL, COR_MENU_HOVER, COR_MENU_TEXTO,
-    COR_MENU_ATIVO, COR_MENU_TEXTO_ATIVO,
-    COR_CAMPO, COR_CAMPO_BORDA, COR_CAMPO_FOCO, COR_PILULA_PADRAO, CORES_TOAST,
-)
+from utils.constantes import *
+from utils.icones import obter_icone_toast
 
 # tipo do botão -> (fundo, fundo no hover, texto)
 ESTILOS_BOTAO = {
@@ -36,11 +18,6 @@ ESTILOS_BOTAO = {
 
 
 def retangulo_arredondado(canvas, x1, y1, x2, y2, raio, fill, outline=None):
-    """
-    Desenha um retângulo com cantos arredondados num Canvas:
-    4 arcos nos cantos + 2 retângulos no meio. Com raio = metade da
-    altura, vira uma "pílula".
-    """
     raio = max(0, min(raio, (x2 - x1) / 2, (y2 - y1) / 2))
     d = 2 * raio
     cor = fill
@@ -162,24 +139,39 @@ class Pilula(tk.Canvas):
         self.create_text(largura / 2, altura / 2, text=texto,
                          fill=cor_texto, font=fonte)
 
-
 def exibir_toast(parent, mensagem, tipo="sucesso", duracao=3000):
     """Notificação no canto superior direito. tipo: "sucesso" ou "erro"."""
-    cor_fundo, cor_texto, cor_borda = CORES_TOAST.get(tipo, CORES_TOAST["erro"])
-    icone = "✓" if tipo == "sucesso" else "!"
 
-    toast = tk.Frame(parent, bg=cor_fundo, highlightthickness=1,
-                     highlightbackground=cor_borda)
+    if tipo not in CORES_TOAST_BARRA:
+        tipo = "erro"
+
+    cor_barra = CORES_TOAST_BARRA[tipo]
+
+    toast = tk.Frame(parent, bg=COR_TOAST_FUNDO)
     toast.place(relx=1.0, x=-20, y=20, anchor="ne")
 
-    tk.Label(toast, text=f"{icone}  {mensagem}", bg=cor_fundo, fg=cor_texto,
-             font=(FONTE, 10, "bold"), wraplength=300,
-             justify="left").pack(padx=18, pady=12)
+    # Barra lateral esquerda colorida
+    tk.Frame(toast, bg=cor_barra, width=5).pack(side="left", fill="y")
+
+    tk.Label(
+        toast,
+        image=obter_icone_toast(tipo, cor_barra),
+        bg=COR_TOAST_FUNDO
+    ).pack(side="left", padx=(14, 8), pady=12)
+
+    tk.Label(
+        toast,
+        text=mensagem,
+        bg=COR_TOAST_FUNDO,
+        fg=COR_TOAST_TEXTO,
+        font=(FONTE, 10, "bold"),
+        wraplength=300,
+        justify="left"
+    ).pack(side="left", padx=(0, 18), pady=12)
 
     toast.lift()
     parent.after(duracao, toast.destroy)
     return toast
-
 
 def criar_campo(parent, fonte=(FONTE, 11)):
     """Entry no estilo do tema: fundo lilás clarinho e borda que acende no foco."""
