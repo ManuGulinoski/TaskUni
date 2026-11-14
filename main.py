@@ -17,6 +17,7 @@ from services.frase_service import buscar_frase
 from services.grafico_service import contar_por_status, contar_por_tipo
 
 from utils.constantes import *
+from utils.icones import criar_icones_menu, criar_icones_frase
 
 
 class App:
@@ -36,6 +37,7 @@ class App:
         self.tela_grafico = None
         self.botoes_menu = {}
         self.fila_frase = Queue()
+        self.carregando_frase = False
 
         self.menu_lateral = tk.Frame(
             self.janela,
@@ -178,13 +180,19 @@ class App:
             bd=0
         )
 
+        icones_menu = criar_icones_menu()
+
         self.menu_nova.add_command(
-            label="  ✎  Tarefa",
+            label="  Tarefa",
+            image=icones_menu["tarefa"],
+            compound="left",
             command=self.abrir_modal_tarefa
         )
 
         self.menu_nova.add_command(
-            label="  ✿  Disciplina",
+            label="  Disciplina",
+            image=icones_menu["disciplina"],
+            compound="left",
             command=self.abrir_modal_disciplina
         )
 
@@ -257,6 +265,39 @@ class App:
         )
 
         self.label_autor.pack()
+
+        icones_frase = criar_icones_frase()
+
+        self.botao_recarregar_frase = tk.Label(
+            self.frame_frase,
+            image=icones_frase["recarregar"],
+            bg=COR_SUPERFICIE,
+            cursor="hand2",
+            padx=6,
+            pady=6
+        )
+
+        self.botao_recarregar_frase.place(
+            relx=1.0,
+            x=-10,
+            y=6,
+            anchor="ne"
+        )
+
+        self.botao_recarregar_frase.bind(
+            "<Button-1>",
+            lambda e: self.carregar_frase()
+        )
+
+        self.botao_recarregar_frase.bind(
+            "<Enter>",
+            lambda e: self.botao_recarregar_frase.configure(bg=COR_SUAVE)
+        )
+
+        self.botao_recarregar_frase.bind(
+            "<Leave>",
+            lambda e: self.botao_recarregar_frase.configure(bg=COR_SUPERFICIE)
+        )
 
         # ---------- Gráficos (ocupam o espaço do meio) ----------
         area_graficos = tk.Frame(
@@ -423,6 +464,13 @@ class App:
 
     def carregar_frase(self):
 
+        # Evita várias buscas ao mesmo tempo
+        if self.carregando_frase:
+            return
+
+        self.carregando_frase = True
+        self.botao_recarregar_frase.configure(cursor="watch")
+
         threading.Thread(
             target=self._buscar_frase,
             daemon=True
@@ -468,6 +516,9 @@ class App:
         self.label_autor.configure(
             text=f"— {autor}"
         )
+
+        self.carregando_frase = False
+        self.botao_recarregar_frase.configure(cursor="hand2")
 
     def ocultar_telas(self):
 

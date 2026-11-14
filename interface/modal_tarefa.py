@@ -43,18 +43,16 @@ class ModalTarefa:
             bg=COR_SUPERFICIE,
             highlightthickness=1,
             highlightbackground=COR_BORDA,
-            highlightcolor=COR_BORDA,
-            width=650,
-            height=600
+            highlightcolor=COR_BORDA
         )
 
+        # Largura fixa; a altura se ajusta ao conteúdo
         self.janela.place(
             relx=0.5,
             rely=0.5,
-            anchor="center"
+            anchor="center",
+            width=650
         )
-
-        self.janela.pack_propagate(False)
 
         disciplinas, tarefas = armazenamento.carregar()
 

@@ -213,9 +213,12 @@ COR_GRAFICO_EIXO = "#E3D8F0"
 COR_GRAFICO_PADRAO = "#D6CCE4"
 
 # ---------- Notificações (toasts): tipo -> (fundo, texto, borda) ----------
-CORES_TOAST = {
-    "sucesso": ("#D7F3E7", "#1F6B52", "#A9E3CB"),
-    "erro": ("#FFE1E1", "#B3261E", "#FFC2C2"),
+COR_TOAST_FUNDO = "#FFFFFF"
+COR_TOAST_TEXTO = "#000000"
+
+CORES_TOAST_BARRA = {
+    "sucesso": "#2E9E5B",
+    "erro": "#D64545",
 }
 
 # ---------- Mensagens simpáticas ----------

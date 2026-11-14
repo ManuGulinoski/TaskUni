@@ -51,12 +51,6 @@ class TelaTarefas(tk.Frame):
         topo = tk.Frame(self, bg=COR_FUNDO)
         topo.pack(fill="x")
 
-        BotaoArredondado(
-            topo,
-            "← Início",
-            self.voltar_inicio,
-            tipo="secundario"
-        ).pack(side="left", padx=(0, 16))
 
         tk.Label(
             topo,
@@ -526,8 +520,3 @@ class TelaTarefas(tk.Frame):
     def concluir_tarefa(self, tarefa):
 
         print(f"[US17] Concluir: {tarefa.nome}")
-
-    def voltar_inicio(self):
-
-        if self.app:
-            self.app.mostrar_home()

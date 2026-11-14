@@ -1,7 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-
-from interface.componentes import BotaoArredondado
 from interface.graficos import GraficoColunas, GraficoPizza
 from repositorio import armazenamento
 from services.grafico_service import contar_por_status, contar_por_tipo
@@ -24,9 +22,6 @@ class TelaGrafico(tk.Frame):
 
         topo = tk.Frame(self, bg=COR_FUNDO)
         topo.pack(fill="x", pady=(0, 16))
-
-        BotaoArredondado(topo, "← Início", self.voltar_inicio,
-                         tipo="secundario").pack(side="left", padx=(0, 16))
 
         tk.Label(topo, text="Gráficos das tarefas ✿", bg=COR_FUNDO, fg=COR_TEXTO,
                  font=FONTE_TITULO).pack(side="left")
@@ -57,7 +52,3 @@ class TelaGrafico(tk.Frame):
         self.grafico_tipo.atualizar(contar_por_tipo(tarefas))
 
         self.label_total.configure(text=f"Total: {len(tarefas)} tarefa(s)")
-
-    def voltar_inicio(self):
-        if self.app:
-            self.app.mostrar_home()
