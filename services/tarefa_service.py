@@ -172,12 +172,7 @@ def editar_tarefa(
 # ==========================================================
 
 def excluir_tarefa(tarefa_id):
-    """
-    Exclui uma tarefa pelo seu ID e salva a lista atualizada no JSON.
-
-    Retorna a tarefa excluída.
-    """
-
+    
     disciplinas, tarefas = armazenamento.carregar()
 
     tarefa_encontrada = next(
@@ -200,3 +195,16 @@ def excluir_tarefa(tarefa_id):
     )
 
     return tarefa_encontrada
+
+# US12 - Concluir tarefa
+def concluir_tarefa(tarefa_id):
+    """Marca a tarefa como concluída e persiste a alteração no JSON."""
+    disciplinas, tarefas = armazenamento.carregar()
+    tarefa = next((t for t in tarefas if t.id == tarefa_id), None)
+
+    if tarefa is None:
+        raise ValueError("Tarefa não encontrada.")
+
+    tarefa.status = STATUS_CONCLUIDA
+    armazenamento.salvar(disciplinas, tarefas)
+    return tarefa

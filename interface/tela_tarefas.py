@@ -7,7 +7,8 @@ from interface.modal_confirmacao import ModalConfirmacao
 from interface.componentes import BotaoArredondado, exibir_toast
 from services.tarefa_service import (
     verificar_tarefas_atrasadas,
-    excluir_tarefa as remover_tarefa
+    excluir_tarefa as remover_tarefa,
+    concluir_tarefa as marcar_concluida
 )
 from services.filtro_service import filtrar_tarefas
 from utils.constantes import *
@@ -519,4 +520,19 @@ class TelaTarefas(tk.Frame):
 
     def concluir_tarefa(self, tarefa):
 
-        print(f"[US17] Concluir: {tarefa.nome}")
+        """US12 - Salva a conclusão e atualiza os cards e indicadores."""
+        try:
+            marcar_concluida(tarefa.id)
+        except (ValueError, OSError) as erro:
+            self.exibir_toast(str(erro), "erro")
+            return
+
+        if self.app:
+            self.app.atualizar_telas()
+        else:
+            self.atualizar_lista()
+
+        self.exibir_toast(
+            f'Tarefa "{tarefa.nome}" concluída com sucesso!',
+            "sucesso"
+        )
