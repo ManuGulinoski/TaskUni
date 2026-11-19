@@ -7,6 +7,7 @@ from interface.card_big_number import CardBigNumber
 from interface.componentes import BotaoArredondado, aplicar_estilo_ttk
 from interface.graficos import GraficoColunas, GraficoPizza
 from interface.modal_disciplina import ModalDisciplina
+from interface.modal_editar_disciplina import ModalEditarDisciplina
 from interface.modal_tarefa import ModalTarefa
 from interface.tela_tarefas import TelaTarefas
 from interface.tela_grafico import TelaGrafico
@@ -194,6 +195,16 @@ class App:
             image=icones_menu["disciplina"],
             compound="left",
             command=self.abrir_modal_disciplina
+        )
+
+        # US05 - Editar disciplina
+        self.menu_nova.add_separator()
+
+        self.menu_nova.add_command(
+            label="  Editar disciplina",
+            image=icones_menu["editar_disciplina"],
+            compound="left",
+            command=self.abrir_modal_editar_disciplina
         )
 
         self.botao_nova = BotaoArredondado(
@@ -398,6 +409,14 @@ class App:
     def abrir_modal_disciplina(self):
 
         ModalDisciplina(self.janela)
+
+    def abrir_modal_editar_disciplina(self):
+
+        # Ao salvar, os cards mostram o nome novo da disciplina
+        ModalEditarDisciplina(
+            self.janela,
+            ao_salvar=lambda disciplina: self.atualizar_telas()
+        )
 
     def abrir_modal_tarefa(self):
 

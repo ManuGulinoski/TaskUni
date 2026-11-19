@@ -76,8 +76,10 @@ class TesteContrasteTema(unittest.TestCase):
         self.assertLegivel(texto, fundo, "pílula padrão")
 
     def test_toasts(self):
-        for tipo, (fundo, texto, _borda) in c.CORES_TOAST.items():
-            self.assertLegivel(texto, fundo, f"toast {tipo}")
+        # Aviso: fundo branco, texto escuro e uma barra colorida ao lado
+        self.assertLegivel(c.COR_TOAST_TEXTO, c.COR_TOAST_FUNDO, "texto do toast")
+        for tipo in ("sucesso", "erro"):
+            self.assertIn(tipo, c.CORES_TOAST_BARRA)
 
     def test_todo_status_tem_pilula_e_cor_no_grafico(self):
         for status in c.STATUS_TODOS:

@@ -30,6 +30,42 @@ def validar_descricao(descricao):
     return descricao
 
 
+def validar_tipo(tipo):
+    """O tipo é obrigatório e precisa ser Prova, Trabalho ou Exercício."""
+    if tipo not in TIPOS:
+        raise ValueError("Escolha o tipo da tarefa.")
+
+    return tipo
+
+
+def validar_disciplina(disciplina_id, disciplinas):
+    """A tarefa precisa estar ligada a uma disciplina que existe."""
+    if not disciplinas:
+        raise ValueError(
+            "Cadastre uma disciplina antes de criar uma tarefa."
+        )
+
+    if disciplina_id not in {d.id for d in disciplinas}:
+        raise ValueError("Escolha a disciplina da tarefa.")
+
+    return disciplina_id
+
+
+def validar_status(status):
+    """
+    O usuário escolhe só A fazer, Em andamento ou Concluída.
+    "Atrasada" é calculada pela data e nunca é salva: se chegar
+    aqui (por um dado antigo), volta a ser "A fazer".
+    """
+    if status == STATUS_ATRASADA:
+        return STATUS_A_FAZER
+
+    if status not in STATUS_SELECIONAVEIS:
+        raise ValueError("Escolha um status válido.")
+
+    return status
+
+
 def cor_padrao(cor):
     if not cor:
         cor = "Branco"
@@ -66,9 +102,12 @@ def cadastrar_tarefa(
 
     nome = validar_nome(nome)
     descricao = validar_descricao(descricao)
+    tipo = validar_tipo(tipo)
+    status = validar_status(status)
 
     disciplinas, tarefas = armazenamento.carregar()
 
+    disciplina_id = validar_disciplina(disciplina_id, disciplinas)
     prazo = validar_prazo(prazo)
     cor = cor_padrao(cor)
 
@@ -90,20 +129,23 @@ def cadastrar_tarefa(
 
 
 def verificar_tarefas_atrasadas():
+    """
+    Carrega disciplinas e tarefas para a tela.
+
+    "Atrasada" é calculada por tarefa.status_atual() e NÃO é salva.
+    Se o JSON tiver "Atrasada" gravado (versões antigas do app), o status
+    volta para "A fazer". Assim, ao adiar o prazo, a tarefa deixa de
+    aparecer como atrasada.
+    """
 
     disciplinas, tarefas = armazenamento.carregar()
 
-    hoje = date.today()
     houve_alteracao = False
 
     for tarefa in tarefas:
 
-        if (
-            tarefa.prazo < hoje
-            and tarefa.status != STATUS_CONCLUIDA
-            and tarefa.status != STATUS_ATRASADA
-        ):
-            tarefa.status = STATUS_ATRASADA
+        if tarefa.status == STATUS_ATRASADA:
+            tarefa.status = STATUS_A_FAZER
             houve_alteracao = True
 
     if houve_alteracao:
@@ -125,8 +167,12 @@ def editar_tarefa(
 
     nome = validar_nome(nome)
     descricao = validar_descricao(descricao)
+    tipo = validar_tipo(tipo)
+    status = validar_status(status)
 
     disciplinas, tarefas = armazenamento.carregar()
+
+    disciplina_id = validar_disciplina(disciplina_id, disciplinas)
 
     tarefa = next(
         (t for t in tarefas if t.id == tarefa_id),

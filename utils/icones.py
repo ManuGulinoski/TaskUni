@@ -59,6 +59,12 @@ def criar_icones_menu():
                 fill="#000000",
                 scale_to_width=16
             ),
+
+            "editar_disciplina": icon_to_image(
+                "pen",
+                fill="#000000",
+                scale_to_width=16
+            ),
         }
 
     return _icones_menu

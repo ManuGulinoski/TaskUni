@@ -116,32 +116,42 @@ class TelaTarefas(tk.Frame):
             3
         )
 
-        # Botões Filtrar e Limpar
+        # US18 - Filtro por prazo (Hoje, Esta semana, Semana que vem)
+        self.combo_prazo = self._criar_combo(
+            "Prazo",
+            [OPCAO_TODOS] + FILTROS_PRAZO,
+            4
+        )
+
+        # Botões Filtrar e Limpar, numa linha abaixo dos campos
+        # (com o filtro de prazo, os cinco campos ocupam a largura toda)
+        botoes = tk.Frame(self.area_filtros, bg=COR_SUPERFICIE)
+
+        botoes.grid(
+            row=2,
+            column=0,
+            columnspan=5,
+            sticky="e",
+            pady=(12, 0)
+        )
+
         botao_filtrar = self._criar_botao_filtro(
             "Filtrar",
             self.aplicar_filtros,
-            tipo="suave"
+            tipo="suave",
+            parent=botoes
         )
 
-        botao_filtrar.grid(
-            row=1,
-            column=4,
-            padx=(8, 6),
-            sticky="s"
-        )
+        botao_filtrar.pack(side="left", padx=(0, 8))
 
         botao_limpar = self._criar_botao_filtro(
             "Limpar",
             self.limpar_filtros,
-            tipo="secundario"
+            tipo="secundario",
+            parent=botoes
         )
 
-        botao_limpar.grid(
-            row=1,
-            column=5,
-            padx=(4, 0),
-            sticky="s"
-        )
+        botao_limpar.pack(side="left")
 
         self.filtros_aplicados = self._ler_combos()
 
@@ -181,11 +191,11 @@ class TelaTarefas(tk.Frame):
 
         return combo
 
-    def _criar_botao_filtro(self, texto, comando, tipo="suave"):
+    def _criar_botao_filtro(self, texto, comando, tipo="suave", parent=None):
         """Cria os botões arredondados de filtro (Filtrar e Limpar)."""
 
         return BotaoArredondado(
-            self.area_filtros,
+            parent or self.area_filtros,
             texto,
             comando,
             tipo=tipo,
@@ -223,7 +233,8 @@ class TelaTarefas(tk.Frame):
             ),
             "tipo": self.combo_tipo.get(),
             "status": self.combo_status.get(),
-            "prioridade": self.combo_prioridade.get()
+            "prioridade": self.combo_prioridade.get(),
+            "prazo": self.combo_prazo.get()
         }
 
     def aplicar_filtros(self):
@@ -239,7 +250,8 @@ class TelaTarefas(tk.Frame):
             self.combo_disciplina,
             self.combo_tipo,
             self.combo_status,
-            self.combo_prioridade
+            self.combo_prioridade,
+            self.combo_prazo
         ):
             combo.current(0)
 

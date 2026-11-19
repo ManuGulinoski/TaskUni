@@ -223,6 +223,7 @@ CORES_TOAST_BARRA = {
 
 # ---------- Mensagens simpáticas ----------
 MSG_SEM_TAREFAS = "Nenhuma tarefa por aqui ainda ✿\nClique em “+ Criar tarefa” para começar!"
+MSG_SEM_DISCIPLINAS = "Nenhuma disciplina cadastrada"
 MSG_SEM_RESULTADO = "Nenhuma tarefa com esses filtros ♡\nTente mudar ou limpar os filtros."
 MSG_GRAFICO_VAZIO = "Ainda não há tarefas para mostrar ✿\nCadastre uma tarefa e volte aqui!"
 

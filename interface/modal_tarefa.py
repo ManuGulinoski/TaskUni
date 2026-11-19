@@ -178,6 +178,10 @@ class ModalTarefa:
             pady=(4, 10)
         )
 
+        # US04 - Lista vazia: avisa o usuário dentro do próprio campo
+        if not self.mapa_disciplinas:
+            self.combo_disciplina.set(MSG_SEM_DISCIPLINAS)
+
         self.criar_label(formulario, "Prazo (DD/MM/AAAA) *", 4, 0)
         self.entrada_prazo = tk.Entry(
             formulario,
