@@ -30,7 +30,7 @@ Gerenciador de tarefas acadêmicas com interface gráfica desktop, feito em Pyth
 - Tkinter / ttk (biblioteca padrão)
 - [ctkfontawesome](https://pypi.org/project/ctkfontawesome/) para os ícones dos cards
 - Matplotlib: Biblioteca de visualização de dados: gera os gráficos de colunas (tarefas por status) e de pizza (tarefas por tipo), exibidos dentro do Tkinter com `FigureCanvasTkAgg`
-- ![Matplotlib](https://img.shields.io/badge/Matplotlib-11557c?logo=python&logoColor=white)
+  
 
 ## Como executar
 
