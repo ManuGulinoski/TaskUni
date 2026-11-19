@@ -35,7 +35,7 @@ Gerenciador de tarefas acadêmicas com interface gráfica desktop, feito em Pyth
 1. Clone o repositório e entre na pasta:
 
    ```bash
-   git clone <url-do-repositorio>
+   git clone https://github.com/ManuGulinoski/TaskUni.git
    cd TaskUni
    ```
 
